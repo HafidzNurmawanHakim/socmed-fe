@@ -1,26 +1,25 @@
-import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import "./App.css";
+import { AppControllerProvider } from "./app/Layout/core/AppController";
+import MasterLayout from "./app/Layout/core/MasterLayout";
+import { ThemeProvider } from "./app/Layout/core/ThemeProvider";
+import { AuthProvider } from "./app/auth/core/AuthProvider";
+import Routes from "./routes";
+import axios from "axios";
+
+axios.defaults.baseURL = process.env.REACT_APP_BASE_URL;
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+   return (
+      <div className="h-screen w-screen">
+         <AppControllerProvider>
+            <ThemeProvider>
+               <AuthProvider>
+                  <Routes />
+               </AuthProvider>
+            </ThemeProvider>
+         </AppControllerProvider>
+      </div>
+   );
 }
 
 export default App;
