@@ -15,7 +15,7 @@ type AuthContextProps = {
    token: string | null;
    setToken: Dispatch<SetStateAction<string | null>>;
    login: (value: UserLogin) => Promise<void | AxiosResponse<any, any>>;
-   dataUser: UserData | undefined;
+   dataUser: UserData | null;
 };
 
 interface AuthProviderProps {
@@ -26,7 +26,7 @@ const initAuthContextProps = {
    token: null,
    setToken: () => {},
    login: async (user: UserLogin) => {},
-   dataUser: undefined,
+   dataUser: null,
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextProps);
@@ -35,8 +35,11 @@ const useAuth = () => {
    return useContext(AuthContext);
 };
 const AuthProvider = ({ children }: AuthProviderProps) => {
+   const storedUserData = localStorage.getItem("user");
+   const initialUserData: UserData | null = storedUserData ? JSON.parse(storedUserData) : null;
+
    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-   const [dataUser, setDatauser] = useState<UserData | undefined>(undefined);
+   const [dataUser, setDatauser] = useState<UserData | null>(initialUserData);
 
    async function login(user: UserLogin) {
       axios
@@ -55,6 +58,7 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
       if (token) {
          axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
          localStorage.setItem("token", token);
+         localStorage.setItem("user", JSON.stringify(dataUser));
       } else {
          delete axios.defaults.headers.common["Authorization"];
          localStorage.removeItem("token");
