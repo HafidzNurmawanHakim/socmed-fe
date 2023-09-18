@@ -20,7 +20,7 @@ interface AppControllerProviderProps {
 }
 
 const initAppController = {
-   openPanel: true,
+   openPanel: false,
    setOpenPanel: () => {},
    isSticky: false,
    setIsSticky: () => {},
@@ -33,7 +33,7 @@ const useAppController = () => {
 };
 
 const AppControllerProvider: FC<AppControllerProviderProps> = ({ children }) => {
-   const [openPanel, setOpenPanel] = useState<boolean>(true);
+   const [openPanel, setOpenPanel] = useState<boolean>(false);
    const [isSticky, setIsSticky] = useState(false);
 
    useEffect(() => {

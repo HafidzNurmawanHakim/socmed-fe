@@ -11,7 +11,21 @@ import {
    ThunderboltFilled,
 } from "@ant-design/icons";
 
-export const ContentSection = () => {
+type Content = {
+   content: string;
+   created_at: string;
+   updated_at: string;
+   author: number;
+   id: number;
+   images: string[];
+};
+
+interface ContentSectionProps {
+   data: Content;
+}
+
+export const ContentSection = (props: ContentSectionProps) => {
+   const { content, created_at, updated_at, author, id, images } = props.data;
    return (
       <div id="content-section" className="rounded-md pb-2 mb-4 bg-dark">
          <div id="creator-section" className=" flex ml-1 p-2">
@@ -56,13 +70,7 @@ export const ContentSection = () => {
          </div>
          <div id="content" className="px-2">
             <div id="text-content">
-               <p className="indent- text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus numquam quod,
-                  molestiae adipisci non nemo omnis libero? Quisquam, id. Rerum exercitationem
-                  quibusdam eum consequuntur enim debitis et eius voluptates vitae autem. Ullam
-                  laboriosam iure perferendis quo et dolore vel commodi molestiae at, ipsam non!
-                  Culpa.
-               </p>
+               <p className="indent-2 text-dark dark:text-light text-sm">{content}</p>
                <div id="tags-content">#test</div>
             </div>
             <div id="image-content" className="flex">

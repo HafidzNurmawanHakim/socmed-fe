@@ -2,10 +2,11 @@ import React, { ChangeEventHandler, useState } from "react";
 import { MemoAt, MemoImage, MemoLoc } from "../../../assets";
 import Dropzone, { useDropzone } from "react-dropzone";
 import "react-image-gallery/styles/css/image-gallery.css";
-import Gallery from "react-image-gallery";
 import { PlusOutlined } from "@ant-design/icons";
 import axios from "axios";
 import { useAuth } from "../../auth/core/AuthProvider";
+import { toast } from "react-toastify";
+import { createPost } from "../../../services/post";
 
 interface ImagePreview {
    original: string;
@@ -18,10 +19,10 @@ interface PostData {
 
 const ContentCreator = () => {
    const { dataUser } = useAuth();
-   console.log("🚀 ~ file: ContentCreator.tsx:21 ~ ContentCreator ~ dataUser:", dataUser);
    const [previewImages, setPreviewImages] = useState<ImagePreview[]>([]);
    const [images, setImages] = useState<ImagePreview[]>([]);
    const [withImage, setWithImage] = useState<boolean>(false);
+   const [loading, setLoading] = useState<boolean>(false);
    const [postData, setPostData] = useState<PostData>({
       content: "",
    });
@@ -54,16 +55,40 @@ const ContentCreator = () => {
       formData.append("content", postData.content);
       formData.append("author", dataUser!.id.toString());
       images.forEach((image: any) => {
-         formData.append("images", image);
+         formData.append("uploaded_images", image);
       });
-      console.log("🚀 ~ file: ContentCreator.tsx:53 ~ handleCreatePost ~ formData:", formData);
 
-      // try {
-      //    await axios.post("/api/posts", formData);
-      //    // Reset state or redirect to success page
-      // } catch (error) {
-      //    // Handle error
-      // }
+      if (postData.content === "") return;
+
+      try {
+         setLoading(true);
+         const res = await createPost(formData);
+
+         if (res.status === 201) {
+            toast.success("Post successfully!", {
+               position: "top-right",
+               autoClose: 1500,
+               hideProgressBar: false,
+               closeOnClick: true,
+               draggable: true,
+               progress: undefined,
+               theme: "dark",
+            });
+            setLoading(false);
+         }
+      } catch (error) {
+         // Handle error
+         toast.error("Oops, something went wrong!", {
+            position: "top-right",
+            autoClose: 1500,
+            hideProgressBar: false,
+            closeOnClick: true,
+            draggable: true,
+            progress: undefined,
+            theme: "dark",
+         });
+         setLoading(false);
+      }
    };
 
    return (
@@ -82,7 +107,7 @@ const ContentCreator = () => {
                      <input
                         type="text"
                         placeholder="What's on your mind?"
-                        className="input w-full bg-dark  rounded-full focus:outline-none"
+                        className="input w-full bg-dark text-dark dark:text-light  rounded-full focus:outline-none"
                         name="content"
                         onChange={handleInputChange}
                         value={postData.content}
@@ -125,15 +150,16 @@ const ContentCreator = () => {
                <div className="flex mt-4 justify-between ">
                   <div className="ml-2 mb-2 w-40 bg-dark flex justify-around">
                      <button
+                        type="button"
                         className="btn btn-ghost btn-circle"
                         onClick={() => setWithImage(!withImage)}
                      >
                         <MemoImage fontSize={24} fill="teal" />
                      </button>
-                     <button className="btn btn-ghost btn-circle">
+                     <button type="button" className="btn btn-ghost btn-circle">
                         <MemoLoc fontSize={24} fill="teal" />
                      </button>
-                     <button className="btn btn-ghost btn-circle">
+                     <button type="button" className="btn btn-ghost btn-circle">
                         <MemoAt fontSize={24} fill="teal" />
                      </button>
                   </div>

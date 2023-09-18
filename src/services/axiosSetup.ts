@@ -1,26 +1,44 @@
 import axios, { AxiosError, AxiosRequestConfig } from "axios";
-import { Navigate, useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
 
-const axiosInstance = axios.create();
+const httpRequest = axios.create({
+   baseURL: process.env.REACT_APP_BASE_URL,
+});
 
 interface MyAxiosRequestConfig extends AxiosRequestConfig {
    _retry?: boolean;
 }
 
-axiosInstance.interceptors.response.use(
+httpRequest.interceptors.request.use(
+   (config) => {
+      const token = localStorage.getItem("token");
+      if (token) {
+         config.headers["Authorization"] = `Bearer ${token}`;
+      }
+      return config;
+   },
+   (error) => {
+      Promise.reject(error);
+   }
+);
+
+httpRequest.interceptors.response.use(
    (response) => {
       return response;
    },
 
    async function (error: AxiosError) {
       const originalRequest = error.config as MyAxiosRequestConfig;
-      const navigate = useNavigate();
 
-      if (
-         error.response?.status === 401 &&
-         originalRequest?.url === `${process.env.REACT_APP_BASE_URL}/user/token`
-      ) {
-         navigate("/login");
+      if (error.response?.status === 401 && originalRequest?.url === `/user/token`) {
+         return Promise.reject(error);
+      }
+      if (error.response?.status === 401 && originalRequest?.url === `/user/login`) {
+         toast.error("Username Atau password salah!", {
+            position: toast.POSITION.TOP_LEFT,
+            autoClose: 2000,
+         });
+
          return Promise.reject(error);
       }
 
@@ -28,15 +46,31 @@ axiosInstance.interceptors.response.use(
          if (originalRequest) {
             originalRequest._retry = true;
          }
-         const refreshToken = localStorage.getItem("refresh_token");
-         return axios.post("/user/refresh_token", refreshToken).then((res) => {
-            localStorage.setToken(res.data);
-            axios.defaults.headers.common["Authorization"] =
-               "Bearer " + localStorage.getAccessToken();
-            return axios(originalRequest);
-         });
+
+         const refreshToken = {
+            refresh: localStorage.getItem("refresh_token"),
+         };
+         return axios
+            .post(`${process.env.REACT_APP_BASE_URL}/user/refresh_token`, refreshToken)
+            .then((res) => {
+               let dataUser = localStorage.getItem("user");
+
+               if (!dataUser) {
+                  return;
+               }
+
+               localStorage.setItem("token", res.data.access);
+               axios.defaults.headers.common["Authorization"] = "Bearer " + res.data.access;
+               return axios(originalRequest);
+            })
+            .catch((err) => {
+               localStorage.removeItem("token");
+               localStorage.removeItem("user");
+            });
       }
 
       return Promise.reject(error);
    }
 );
+
+export default httpRequest;

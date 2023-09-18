@@ -12,7 +12,8 @@ import MemoRightChevron from "./Svg/RightChevron";
 import MemoSearch from "./Svg/Search";
 import MemoAt from "./Svg/At";
 import MemoLoc from "./Svg/Loc";
-
+import MemoDarkMode from "./Svg/DarkMode";
+import MemoLightMode from "./Svg/LightMode";
 export {
    MemoCoffee,
    MemoHome,
@@ -28,4 +29,6 @@ export {
    MemoSearch,
    MemoAt,
    MemoLoc,
+   MemoDarkMode,
+   MemoLightMode,
 };

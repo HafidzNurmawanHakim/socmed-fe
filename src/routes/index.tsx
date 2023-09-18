@@ -7,8 +7,6 @@ import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom"
 const Routes = () => {
    const { token } = useAuth();
 
-   console.log(token, "token");
-
    const PublicRoutes = [
       {
          path: "/public",
@@ -40,7 +38,7 @@ const Routes = () => {
    const NotAuthenticatedRoutes = [
       {
          path: "/",
-         element: <div>Not Auth HomePage</div>,
+         element: <Navigate to={"/login"} />,
       },
       {
          path: "/login",

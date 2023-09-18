@@ -53,6 +53,7 @@ const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
       const isDarkTheme: boolean = JSON.parse(localStorage.getItem("isDarkTheme")!);
       setIsDarkTheme(!isDarkTheme);
       toggleClassToBody();
+      setValueToLocalStorage();
    }
 
    function toggleClassToBody() {
@@ -63,7 +64,9 @@ const ThemeProvider: FC<ThemeProviderProps> = ({ children }) => {
       localStorage.setItem("isDarkTheme", `${!isDarkTheme}`);
    }
 
-   return <ThemeContext.Provider value={initThemeContextProps}>{children}</ThemeContext.Provider>;
+   return (
+      <ThemeContext.Provider value={{ isDarkTheme, themeToggle }}>{children}</ThemeContext.Provider>
+   );
 };
 
 export { ThemeProvider, useTheme };
