@@ -8,14 +8,16 @@ import {
    useState,
    useMemo,
 } from "react";
-import { ErrorAuth, ErrorAuthState, UserData, UserLogin } from "./types";
+import { ErrorAuth, ErrorAuthState, UserData, UserLogin, UserRegis } from "./types";
 import { useNavigate } from "react-router-dom";
-import { loginUser } from "../../../services/auth";
+import { loginUser, signupUser } from "../../../services/auth";
+import { toast } from "react-toastify";
 
 type AuthContextProps = {
    token: string | null;
    setToken: Dispatch<SetStateAction<string | null>>;
    login: (value: UserLogin) => void;
+   signup: (value: UserRegis) => void;
    dataUser: UserData | null;
 };
 
@@ -27,6 +29,7 @@ const initAuthContextProps = {
    token: null,
    setToken: () => {},
    login: async (user: UserLogin) => {},
+   signup: async (user: UserRegis) => {},
    dataUser: null,
 };
 
@@ -41,7 +44,22 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
    const [dataUser, setDatauser] = useState<UserData | null>(initialUserData);
-   console.log("🚀 ~ file: AuthProvider.tsx:44 ~ AuthProvider ~ dataUser:", dataUser);
+
+   async function signup(user: UserRegis) {
+      try {
+         const resData = await signupUser(user);
+
+         if (resData.status === 201) {
+            toast.success("Sign Up successfully!", {
+               position: toast.POSITION.TOP_LEFT,
+               autoClose: 2000,
+            });
+            return { status: resData.status };
+         }
+      } catch (error) {
+         console.log("🚀 ~ file: AuthProvider.tsx:49 ~ Signup ~ error:", error);
+      }
+   }
 
    async function login(user: UserLogin) {
       try {
@@ -50,6 +68,8 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
          if (resData.status === 200) {
             setToken(resData.data.access_token);
             localStorage.setItem("refresh_token", resData.data.refresh_token);
+            localStorage.setItem("token", resData.data.access_token);
+            localStorage.setItem("user", JSON.stringify(resData.data.data));
             setDatauser(resData.data.data);
             return resData.status;
          }
@@ -59,14 +79,10 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
    }
 
    useEffect(() => {
-      if (token && dataUser) {
-         localStorage.setItem("user", JSON.stringify(dataUser));
-      } else {
-         localStorage.removeItem("token");
-      }
+      if (!token || !dataUser) localStorage.removeItem("token");
    }, [token]);
 
-   const contextValue = useMemo(() => ({ token, dataUser, login, setToken }), [token]);
+   const contextValue = useMemo(() => ({ token, dataUser, login, signup, setToken }), [token]);
 
    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

@@ -19,6 +19,7 @@ interface PostData {
 
 const ContentCreator = () => {
    const { dataUser } = useAuth();
+   console.log("🚀 ~ file: ContentCreator.tsx:22 ~ ContentCreator ~ dataUser:", dataUser);
    const [previewImages, setPreviewImages] = useState<ImagePreview[]>([]);
    const [images, setImages] = useState<ImagePreview[]>([]);
    const [withImage, setWithImage] = useState<boolean>(false);
@@ -93,7 +94,7 @@ const ContentCreator = () => {
 
    return (
       <div>
-         <div className="flex flex-col rounded-md space-x-4 mb-4 bg-dark">
+         <div className="flex flex-col rounded-md space-x-4 mb-4 p-2 bg-white dark:bg-dark">
             <form onSubmit={handleCreatePost}>
                <div className="flex w-full">
                   <div className="basis-16  mt-2 ml-2">
@@ -103,11 +104,11 @@ const ContentCreator = () => {
                         className="rounded-full mt-1 mx-auto w-10 h-10"
                      />
                   </div>
-                  <div className="basis-auto mt-2 border-b border-darker overflow-hidden w-full">
+                  <div className="basis-auto mt-2 dark:border-darker overflow-hidden w-full">
                      <input
                         type="text"
                         placeholder="What's on your mind?"
-                        className="input w-full bg-dark text-dark dark:text-light  rounded-full focus:outline-none"
+                        className="input w-full bg-lessWhite mb-2 dark:bg-darker text-dark dark:text-light  rounded-full focus:outline-none"
                         name="content"
                         onChange={handleInputChange}
                         value={postData.content}
@@ -148,7 +149,7 @@ const ContentCreator = () => {
                </div>
 
                <div className="flex mt-4 justify-between ">
-                  <div className="ml-2 mb-2 w-40 bg-dark flex justify-around">
+                  <div className="ml-2 mb-2 w-40 flex justify-around">
                      <button
                         type="button"
                         className="btn btn-ghost btn-circle"
@@ -165,7 +166,7 @@ const ContentCreator = () => {
                   </div>
                   <button
                      type="submit"
-                     className="btn btn-sm bg-teal text-white mt-2 mr-4 rounded-md"
+                     className="btn btn-sm bg-teal border-none text-white mt-2 mr-4 rounded-md"
                   >
                      Post
                   </button>

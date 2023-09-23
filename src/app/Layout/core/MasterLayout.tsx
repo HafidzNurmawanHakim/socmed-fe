@@ -9,12 +9,13 @@ import { Spinner } from "@nextui-org/react";
 import { useEffect, useRef, useState } from "react";
 import InfiniteScroll from "react-infinite-scroller";
 import InfiniteScroller from "../../helper/InfinityScroller";
+import { UserData } from "../../auth/core/types";
 
 export type Post = {
    content: string;
    created_at: string;
    updated_at: string;
-   author: number;
+   author: UserData;
    images: string[];
    id: number;
 };
@@ -60,19 +61,19 @@ export default function MasterLayout() {
 
    return (
       <>
-         <div className="flex h-full w-screen bg-dark">
+         <div className="flex h-full w-screen bg-lessWhite dark:bg-dark">
             <LeftPanel />
 
             <div className="bg-lessWhite basis-auto dark:bg-dark w-full ">
                <div className="flex">
                   <div
                      id="main-section"
-                     className="basis-full md:3/6 xl:basis-4/6 2xl:basis-5/8 max-h-screen  max-w-full overflow-y-auto scrollbar  overflow-x-hidden"
+                     className="basis-full bg-lessWhite dark:bg-dark md:3/6 xl:basis-4/6 2xl:basis-5/8 max-h-screen  max-w-full overflow-y-auto scrollbar  overflow-x-hidden"
                   >
                      <Navbar />
                      <div className="mt-2 mr-2 ">
-                        <div className="bg-darker rounded-md py-4 px-2 xl:px-20">
-                           <div className="border border-darker 2xl:p-6 rounded-md shadow-md">
+                        <div className="bg-white dark:bg-darker rounded-md py-4 px-2 xl:px-20">
+                           <div className="border bg-lessWhite dark:bg-darker border-none dark:border-darker 2xl:p-6 rounded-md shadow-md">
                               <ContentCreator />
                               {isLoading ? (
                                  <div className="flex justify-center py-4">

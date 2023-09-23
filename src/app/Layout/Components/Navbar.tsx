@@ -8,7 +8,7 @@ export function Navbar() {
 
    return (
       <div id="navbar" className="mr-2 mt-2 sticky top-0 z-10">
-         <div className={`navbar bg-darker rounded-xl `}>
+         <div className={`navbar bg-white dark:bg-darker rounded-xl `}>
             <div className="navbar-start">
                <div>
                   <label
@@ -23,10 +23,10 @@ export function Navbar() {
             <div className="navbar-center hidden lg:block">
                <div className="join">
                   <input
-                     className="input focus:outline-none rounded-s-full bg-dark join-item "
+                     className="input focus:outline-none rounded-s-full bg-lessWhite dark:bg-dark join-item "
                      placeholder="Search something..."
                   />
-                  <button className="btn join-item bg-dark rounded-r-full">
+                  <button className="btn join-item bg-lessWhite border-none dark:bg-dark rounded-r-full">
                      <MemoSearch fontSize={26} strokeWidth={2} stroke="teal" />
                   </button>
                </div>

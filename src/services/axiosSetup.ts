@@ -18,6 +18,7 @@ httpRequest.interceptors.request.use(
       return config;
    },
    (error) => {
+      console.log("🚀 ~ file: axiosSetup.ts:21 ~ error:", error);
       Promise.reject(error);
    }
 );

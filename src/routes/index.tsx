@@ -1,5 +1,6 @@
 import MasterLayout from "../app/Layout/core/MasterLayout";
 import Login from "../app/auth/components/Login";
+import Register from "../app/auth/components/Register";
 import { useAuth } from "../app/auth/core/AuthProvider";
 import { PrivateRoutes } from "./PrivateRoutes";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
@@ -43,6 +44,10 @@ const Routes = () => {
       {
          path: "/login",
          element: <Login />,
+      },
+      {
+         path: "/register",
+         element: <Register />,
       },
    ];
 

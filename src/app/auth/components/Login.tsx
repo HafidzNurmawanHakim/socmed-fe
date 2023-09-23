@@ -143,7 +143,7 @@ const Login = () => {
                <div className="w-full py-2 text-center absolute bottom-0 ">
                   <span className="text-sm md:text-dark">
                      Dont have account?{" "}
-                     <a href="#" className="text-teal">
+                     <a href="/register" className="text-teal">
                         {" "}
                         Register
                      </a>

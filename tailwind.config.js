@@ -16,6 +16,7 @@ module.exports = {
             lessWhite: "#f5f5f5",
             softRed: "#ED2B2A",
             light: "#bbb",
+            lessLight: "#eee",
          },
          backgroundImage: {
             login: "url('/public/images/dark-bg.jpg')",
