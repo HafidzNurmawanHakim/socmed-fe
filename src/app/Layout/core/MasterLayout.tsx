@@ -1,7 +1,7 @@
 import { Navbar } from "../Components/Navbar";
 import LeftPanel from "../Components/LeftPanel";
 import ContentCreator from "../Components/ContentCreator";
-import { ContentSection } from "../Components/ContentSection";
+import { ContentSection, ImageObj } from "../Components/ContentSection";
 import RightPanel from "../Components/RightPanel";
 import { useInfiniteQuery } from "@tanstack/react-query";
 import { getPost } from "../../../services/post";
@@ -16,7 +16,7 @@ export type Post = {
    created_at: string;
    updated_at: string;
    author: UserData;
-   images: string[];
+   images: Array<ImageObj>;
    id: number;
 };
 

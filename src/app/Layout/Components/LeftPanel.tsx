@@ -166,18 +166,18 @@ export default function LeftPanel() {
 const menu: Array<MenuProps> = [
    {
       title: "Home",
-      icon: <HomeOutlined className="text-teal text-lg" />,
+      icon: <HomeOutlined className="text-teal text-xl" />,
    },
    {
       title: "Profile",
-      icon: <UserOutlined className="text-teal text-lg" />,
+      icon: <UserOutlined className="text-teal text-xl" />,
    },
    {
       title: "Images",
-      icon: <PictureOutlined className="text-teal text-lg" />,
+      icon: <PictureOutlined className="text-teal text-xl" />,
    },
    {
       title: "Setting",
-      icon: <SettingOutlined className="text-teal text-lg" />,
+      icon: <SettingOutlined className="text-teal text-xl" />,
    },
 ];

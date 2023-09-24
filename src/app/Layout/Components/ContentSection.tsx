@@ -11,6 +11,12 @@ import {
    ThunderboltFilled,
 } from "@ant-design/icons";
 import { UserData } from "../../auth/core/types";
+import { formatTagsInText } from "../../helper/helper";
+const { REACT_APP_BASE_URL } = process.env;
+
+export type ImageObj = {
+   image: string;
+};
 
 type Content = {
    content: string;
@@ -18,7 +24,7 @@ type Content = {
    updated_at: string;
    author: UserData;
    id: number;
-   images: string[];
+   images: Array<ImageObj>;
 };
 
 interface ContentSectionProps {
@@ -27,8 +33,9 @@ interface ContentSectionProps {
 
 export const ContentSection = (props: ContentSectionProps) => {
    const { content, created_at, updated_at, author, id, images } = props.data;
+   console.log("🚀 ~ file: ContentSection.tsx:30 ~ ContentSection ~ images:", images);
    return (
-      <div id="content-section" className="rounded-md p-4 mb-4 bg-white dark:bg-dark">
+      <div id="content-section" className="rounded-md p-2 mb-4 bg-white dark:bg-dark">
          <div id="creator-section" className=" flex ml-1 p-2">
             <div className="basis-10">
                <div className="avatar ">
@@ -62,7 +69,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                      tabIndex={0}
                      className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
                   >
-                     <li>
+                     <li className="text-dark dark:text-light">
                         <a>Report this shit</a>
                      </li>
                   </ul>
@@ -71,27 +78,24 @@ export const ContentSection = (props: ContentSectionProps) => {
          </div>
          <div id="content" className="px-2">
             <div id="text-content">
-               <p className="indent-2 text-dark dark:text-light text-sm">{content}</p>
+               <p className="indent-2 text-dark dark:text-light text-sm">
+                  {formatTagsInText(content)}
+               </p>
                <div id="tags-content">#test</div>
             </div>
             <div id="image-content" className="flex">
-               <img
-                  src="https://random.imagecdn.app/500/400"
-                  className="rounded-md m-1"
-                  alt="random"
-               />
-               <div className="flex flex-col">
-                  <img
-                     src="https://random.imagecdn.app/300/200"
-                     className="rounded-md m-1"
-                     alt="random"
-                  />
-                  <img
-                     src="https://random.imagecdn.app/300/200"
-                     className="rounded-md m-1"
-                     alt="random"
-                  />
-               </div>
+               {images.length > 0 &&
+                  images.map((item, i) => {
+                     let imageName = item.image.split("/")[item.image.split("/").length - 1];
+                     return (
+                        <img
+                           key={imageName + i}
+                           src={`${REACT_APP_BASE_URL}/api` + item.image}
+                           alt={imageName}
+                           className="rounded-sm"
+                        />
+                     );
+                  })}
             </div>
 
             <div className="divider my-0"></div>
@@ -139,14 +143,14 @@ export const ContentSection = (props: ContentSectionProps) => {
                      <p className="text-dark dark:text-white ">Sukirman</p>
                      <div className="social-icons flex space-x-2 items-center justify-between">
                         {/* Ikon-ikon Media Sosial */}
-                        <p className="text-sm ">
+                        <p className="text-sm text-dark dark:text-light ">
                            Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis in
                         </p>
                         <div className="flex">
                            <a href="#" className="">
                               <button
                                  tabIndex={0}
-                                 className="btn btn-sm bg-lessLight border-none hover:bg-white mx-1"
+                                 className="btn btn-sm bg-lessLight dark:bg-dark border-none hover:bg-white mx-1"
                               >
                                  <ThunderboltFilled className="text-warning mb-1 text-xl" />
                               </button>
@@ -154,7 +158,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                            <a href="#" className="">
                               <button
                                  tabIndex={0}
-                                 className="btn btn-sm bg-lessLight border-none hover:bg-white mx-1"
+                                 className="btn btn-sm bg-lessLight dark:bg-dark border-none hover:bg-white mx-1"
                               >
                                  <MemoReply fill="teal" className="text-teal mb-1 text-xl" />
                               </button>
