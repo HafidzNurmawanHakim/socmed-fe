@@ -2,12 +2,20 @@ import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { MemoAt, MemoImage, MemoLoc } from "../../../assets";
 import Dropzone, { useDropzone } from "react-dropzone";
 import "react-image-gallery/styles/css/image-gallery.css";
-import { EnvironmentOutlined, PictureOutlined, PlusOutlined } from "@ant-design/icons";
+import {
+   CaretLeftOutlined,
+   CaretRightOutlined,
+   EnvironmentOutlined,
+   PictureOutlined,
+   PlusOutlined,
+   SwapLeftOutlined,
+   SwapRightOutlined,
+} from "@ant-design/icons";
 import axios from "axios";
 import { useAuth } from "../../auth/core/AuthProvider";
 import { toast } from "react-toastify";
 import { createPost } from "../../../services/post";
-import { getCroppedImg, openModal } from "../../helper/helper";
+import { fetchBlobFromURL, getCroppedImg, openModal } from "../../helper/helper";
 import Cropper from "react-easy-crop";
 import { Point, Area } from "react-easy-crop/types";
 
@@ -25,18 +33,24 @@ type Location = {
    longitude: number;
 };
 
+type CroppedImagesProps = {
+   id: number;
+   image: string;
+};
+
 const ContentCreator = () => {
    const { dataUser } = useAuth();
    const [previewImages, setPreviewImages] = useState<ImagePreview[]>([]);
    const [images, setImages] = useState<ImagePreview[]>([]);
    const [withImage, setWithImage] = useState<boolean>(false);
    const [loading, setLoading] = useState<boolean>(false);
-   const [postData, setPostData] = useState<PostData>({
-      content: "",
-   });
    const [location, setLocation] = useState<Location | null>(null);
    const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
    const [currentSlide, setCurrentSlide] = useState<number>(0);
+   const [croppedImages, setCroppedImages] = useState<Array<CroppedImagesProps>>([]);
+   const [postData, setPostData] = useState<PostData>({
+      content: "",
+   });
    const getLocation = () => {
       if (navigator.geolocation) {
          navigator.geolocation.getCurrentPosition(
@@ -54,7 +68,7 @@ const ContentCreator = () => {
       }
    };
 
-   const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
+   const {} = useDropzone({
       accept: {
          "image/jpeg": [],
          "image/png": [],
@@ -81,14 +95,22 @@ const ContentCreator = () => {
       const formData = new FormData();
       formData.append("content", postData.content);
       formData.append("author", dataUser!.id.toString());
-      images.forEach((image: any) => {
-         formData.append("uploaded_images", image);
-      });
-
-      if (postData.content === "") return;
 
       try {
          setLoading(true);
+
+         // Gunakan Promise.all untuk mengambil semua gambar sebelum menambahkannya ke FormData
+         await Promise.all(
+            croppedImages.map(async (item: any) => {
+               const blob = await fetchBlobFromURL(item.image);
+               const file = new File([blob], "image.jpg", { type: "image/jpeg" });
+               // Tambahkan file ke FormData
+               formData.append("uploaded_images", file, "image.jpg");
+            })
+         );
+
+         if (postData.content === "") return;
+
          const res = await createPost(formData);
 
          if (res.status === 201) {
@@ -100,7 +122,6 @@ const ContentCreator = () => {
                autoClose: 1500,
                theme: "dark",
             });
-            setLoading(false);
          }
       } catch (error) {
          // Handle error
@@ -109,38 +130,49 @@ const ContentCreator = () => {
             autoClose: 1500,
             theme: "dark",
          });
+      } finally {
          setLoading(false);
       }
    };
 
    const handleCropComplete = async (croppedArea: Area, croppedAreaPixels: Area) => {
-      // const croppedImage = await getCroppedImg(
-      //    images[currentIndex].original,
-      //    croppedAreaPixels,
-      //    0,
-      //    { unit: "px", width: 1000, height: 1000 }
-      // );
-      console.log(
-         "🚀 ~ file: ContentCreator.tsx:118 ~ handleCropComplete ~ croppedImage:",
-         croppedArea
-      );
-      // setCroppedImages([...croppedImages, croppedImage]);
-   };
-   //    <Cropper
-   //    image={item.original}
-   //    crop={crop}
-   //    aspect={1}
-   //    onCropChange={setCrop}
-   //    onCropComplete={handleCropComplete}
-   //    key={item.original}
-   // />
+      const croppedImage = await getCroppedImg(previewImages[currentSlide].original, croppedArea);
 
-   const nextSlide = () => {
-      setCurrentSlide((prev) => (prev === previewImages.length - 1 ? 0 : prev + 1)); // Pindah ke slide berikutnya
+      const cropped: CroppedImagesProps = {
+         id: currentSlide,
+         image: croppedImage,
+      };
+
+      // Cek apakah objek dengan id yang sama sudah ada dalam array croppedImages
+      const existingIndex = croppedImages.findIndex((item) => item.id === currentSlide);
+
+      if (existingIndex !== -1) {
+         // Objek dengan id yang sama sudah ada, perbarui properti image-nya
+         const updatedCroppedImages = [...croppedImages];
+         updatedCroppedImages[existingIndex].image = cropped.image;
+         setCroppedImages(updatedCroppedImages);
+      } else {
+         // Tambahkan objek baru jika tidak ada yang memiliki id yang sama
+         setCroppedImages([...croppedImages, cropped]);
+      }
    };
 
-   const prevSlide = () => {
-      setCurrentSlide((prev) => (prev > 0 ? previewImages.length - 1 : prev - 1)); // Pindah ke slide sebelumnya
+   const nextHandle = (e: any) => {
+      e.preventDefault();
+      if (currentSlide < previewImages.length - 1) {
+         setCurrentSlide((prev) => prev + 1);
+      } else {
+         setCurrentSlide(0);
+      }
+   };
+
+   const prevHandle = (e: any) => {
+      e.preventDefault();
+      if (currentSlide > 0) {
+         setCurrentSlide((prev) => prev - 1);
+      } else {
+         setCurrentSlide(previewImages.length - 1);
+      }
    };
 
    return (
@@ -152,32 +184,34 @@ const ContentCreator = () => {
                </div>
                <div className="relative w-full h-4/5">
                   {previewImages.length > 0 ? (
-                     <div className="carousel w-full">
-                        {previewImages.map((item, i) => {
-                           return (
-                              <>
-                                 <div id={"slide" + i} className="carousel-item relative w-full">
-                                    <img src={item.original} alt="" />
-                                    <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
-                                       <a
-                                          className="btn btn-circle"
-                                          href={"#slide" + (currentSlide - 1)}
-                                          onClick={prevSlide}
-                                       >
-                                          ❮
-                                       </a>
-                                       <a
-                                          className="btn btn-circle"
-                                          href={"#slide" + (currentSlide + 1)}
-                                          onClick={nextSlide}
-                                       >
-                                          ❯
-                                       </a>
-                                    </div>
-                                 </div>
-                              </>
-                           );
-                        })}
+                     <div className="carousel h-full w-full">
+                        <div id={`slide${currentSlide}`} className="carousel-item relative w-full">
+                           <Cropper
+                              image={previewImages[currentSlide].original}
+                              crop={crop}
+                              aspect={1}
+                              onCropChange={setCrop}
+                              onCropComplete={handleCropComplete}
+                              key={previewImages[currentSlide].original}
+                              showGrid
+                           />
+                           <div className="absolute flex justify-between transform -translate-y-1/2 left-5 right-5 top-1/2">
+                              <a
+                                 href={`#slide${currentSlide - 1}`}
+                                 className="btn btn-sm btn-circle"
+                                 onClick={prevHandle}
+                              >
+                                 <CaretLeftOutlined />
+                              </a>
+                              <a
+                                 href={`#slide${currentSlide + 1}`}
+                                 className="btn btn-sm btn-circle"
+                                 onClick={nextHandle}
+                              >
+                                 <CaretRightOutlined />
+                              </a>
+                           </div>
+                        </div>
                      </div>
                   ) : (
                      <Dropzone onDrop={onDrop} multiple>
@@ -194,11 +228,11 @@ const ContentCreator = () => {
                   )}
                </div>
                <div className="modal-action pr-4">
-                  <button className="btn btn-sm">Crop</button>
                   <form method="dialog">
                      {/* if there is a button in form, it will close the modal */}
-                     <button className="btn btn-sm">Close</button>
+                     <button className="btn btn-sm">Simpan</button>
                   </form>
+                  <button className="btn btn-sm">Batal</button>
                </div>
             </div>
          </dialog>
@@ -223,26 +257,15 @@ const ContentCreator = () => {
                      />
                      <div
                         className={`custom-transition h-0 opacity-0 ${
-                           previewImages.length > 0 && "h-20 opacity-100"
+                           previewImages.length > 0 && "h-60 opacity-100"
                         }`}
                      >
-                        {/* <Dropzone onDrop={onDrop} multiple>
-                              {({ getRootProps, getInputProps }) => (
-                                 <div
-                                    {...getRootProps()}
-                                    className="dropzone flex border border-2 cursor-pointer border-current rounded-md border-dashed items-center w-32 h-20"
-                                 >
-                                    <input {...getInputProps()} />
-                                    <PlusOutlined className="m-auto" />
-                                 </div>
-                              )}
-                           </Dropzone> */}
                         <div className="flex">
-                           {previewImages.length > 0 &&
-                              previewImages.map((item, i) => {
+                           {croppedImages.length > 0 &&
+                              croppedImages.map((item, i) => {
                                  return (
-                                    <div key={i} className="w-32 rounded-sm overflow-hidden mx-1">
-                                       <img src={item.thumbnail} alt="" />
+                                    <div key={i} className="w-auto rounded-sm overflow-hidden mx-1">
+                                       <img src={!!item.image ? item.image : ""} alt="" />
                                     </div>
                                  );
                               })}

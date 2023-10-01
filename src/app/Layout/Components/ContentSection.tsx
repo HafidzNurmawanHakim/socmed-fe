@@ -1,17 +1,21 @@
-import React from "react";
+import React, { useState } from "react";
 import { MemoLoc } from "../../../assets";
 import MemoTripleDot from "../../../assets/Svg/TripleDot";
 import MemoReply from "../../../assets/Svg/Reply";
 import MemoHeart from "../../../assets/Svg/Heart";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
 import {
-   HeartFilled,
+   CaretLeftOutlined,
+   CaretRightOutlined,
    MessageOutlined,
-   SendOutlined,
    ShareAltOutlined,
    ThunderboltFilled,
 } from "@ant-design/icons";
 import { UserData } from "../../auth/core/types";
 import { formatTagsInText } from "../../helper/helper";
+import Slider from "react-slick";
+
 const { REACT_APP_BASE_URL } = process.env;
 
 export type ImageObj = {
@@ -33,9 +37,64 @@ interface ContentSectionProps {
 
 export const ContentSection = (props: ContentSectionProps) => {
    const { content, created_at, updated_at, author, id, images } = props.data;
-   console.log("🚀 ~ file: ContentSection.tsx:30 ~ ContentSection ~ images:", images);
+   const [currentSlide, setCurrentSlide] = useState<number>(0);
+
+   const nextHandle = (e: any) => {
+      // e.preventDefault();
+      if (currentSlide < images.length - 1) {
+         setCurrentSlide((prev) => prev + 1);
+      } else {
+         setCurrentSlide(0);
+      }
+   };
+
+   const prevHandle = (e: any) => {
+      // e.preventDefault();
+      if (currentSlide > 0) {
+         setCurrentSlide((prev) => prev - 1);
+      } else {
+         setCurrentSlide(images.length - 1);
+      }
+   };
+
+   function SampleNextArrow(props: any) {
+      const { className, style, onClick } = props;
+      return (
+         <div
+            className="btn btn-sm btn-circle py-[5px] items-center absolute top-[50%] right-[0] mr-4"
+            style={{ ...style }}
+            onClick={onClick}
+         >
+            <CaretRightOutlined />
+         </div>
+      );
+   }
+   function SamplePrevArrow(props: any) {
+      const { className, style, onClick } = props;
+      return (
+         <div
+            className="btn btn-sm btn-circle py-[5px] absolute top-[50%] z-10 ml-4"
+            style={{ ...style }}
+            onClick={onClick}
+         >
+            <CaretLeftOutlined />
+         </div>
+      );
+   }
+
+   const settings = {
+      dots: true,
+      infinite: true,
+      speed: 500,
+      slidesToShow: 1,
+      slidesToScroll: 1,
+      adaptiveHeight: true,
+      nextArrow: <SampleNextArrow />,
+      prevArrow: <SamplePrevArrow />,
+   };
+
    return (
-      <div id="content-section" className="rounded-md p-2 mb-4 bg-white dark:bg-dark">
+      <div id="content-section" className="rounded-md p-2 mb-4 bg-white dark:bg-dark ">
          <div id="creator-section" className=" flex ml-1 p-2">
             <div className="basis-10">
                <div className="avatar ">
@@ -76,15 +135,32 @@ export const ContentSection = (props: ContentSectionProps) => {
                </div>
             </div>
          </div>
-         <div id="content" className="px-2">
+         <div id="content" className="px-2 ">
             <div id="text-content">
                <p className="indent-2 text-dark dark:text-light text-sm">
                   {formatTagsInText(content)}
                </p>
                <div id="tags-content">#test</div>
             </div>
-            <div id="image-content" className="flex">
-               {images.length > 0 &&
+            <div id="image-content" className=" ">
+               {images.length > 0 ? (
+                  <Slider {...settings} className="">
+                     {images.map((item, i) => {
+                        let imageName = item.image.split("/")[item.image.split("/").length - 1];
+                        return (
+                           <img
+                              key={imageName + i}
+                              src={`${REACT_APP_BASE_URL}/api` + item.image}
+                              alt={imageName}
+                              className="rounded-sm"
+                           />
+                        );
+                     })}
+                  </Slider>
+               ) : (
+                  <></>
+               )}
+               {/* {images.length > 0 &&
                   images.map((item, i) => {
                      let imageName = item.image.split("/")[item.image.split("/").length - 1];
                      return (
@@ -95,7 +171,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                            className="rounded-sm"
                         />
                      );
-                  })}
+                  })} */}
             </div>
 
             <div className="divider my-0"></div>

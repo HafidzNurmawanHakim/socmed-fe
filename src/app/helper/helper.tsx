@@ -41,36 +41,29 @@ export function openModal(id: string) {
    return modal.showModal();
 }
 
-interface CropOptions {
-   unit?: "%" | "px";
-   width: number;
-   height: number;
+export function getRadianAngle(degreeValue: number) {
+   return (degreeValue * Math.PI) / 180;
 }
 
-export function getCroppedImg(
-   imageUrl: string,
-   crop: Area,
-   rotation: number,
-   cropOptions: CropOptions
-): Promise<string | null> {
+export async function fetchBlobFromURL(url: string) {
+   const response = await fetch(url);
+   return await response.blob();
+}
+
+export function getCroppedImg(imageUrl: string, crop: Area): Promise<string> {
    return new Promise((resolve) => {
       const img = new Image();
       img.src = imageUrl;
       img.onload = () => {
          const canvas = document.createElement("canvas");
          const ctx = canvas.getContext("2d");
-         const { width, height, unit = "%" } = cropOptions;
 
          if (!ctx) {
-            return Promise.resolve(null);
+            return Promise.resolve("");
          }
 
-         canvas.width = unit === "%" ? (width / 100) * img.width : width;
-         canvas.height = unit === "%" ? (height / 100) * img.height : height;
-
-         ctx.translate(canvas.width / 2, canvas.height / 2);
-         ctx.rotate((rotation * Math.PI) / 180);
-         ctx.translate(-canvas.width / 2, -canvas.height / 2);
+         canvas.width = img.width;
+         canvas.height = img.height;
 
          ctx.drawImage(
             img,
@@ -86,7 +79,7 @@ export function getCroppedImg(
 
          canvas.toBlob((blob) => {
             if (!blob) {
-               resolve(null);
+               resolve("");
                return;
             }
             resolve(URL.createObjectURL(blob));

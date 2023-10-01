@@ -42,6 +42,11 @@ code {
 
 * {
    font-family: "Poppins", Courier, monospace;
+   box-sizing: border-box;
+}
+
+body {
+   overflow-x: hidden !important;
 }
 
 .material-symbols-outlined {
