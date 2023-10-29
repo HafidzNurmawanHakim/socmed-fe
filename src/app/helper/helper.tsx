@@ -87,3 +87,23 @@ export function getCroppedImg(imageUrl: string, crop: Area): Promise<string> {
       };
    });
 }
+
+export const generateTimestamps = (time: string) => {
+   let currentTime = new Date();
+   let postTime = new Date(time);
+
+   const timeDifference = Math.floor((currentTime.getTime() - postTime.getTime()) / 1000);
+
+   if (timeDifference < 60) {
+      return `${timeDifference} detik yang lalu`;
+   } else if (timeDifference < 3600) {
+      const minutes = Math.floor(timeDifference / 60);
+      return `${minutes} menit yang lalu`;
+   } else if (timeDifference < 86400) {
+      const hours = Math.floor(timeDifference / 3600);
+      return `${hours} jam yang lalu`;
+   } else {
+      const days = Math.floor(timeDifference / 86400);
+      return `${days} hari yang lalu`;
+   }
+};

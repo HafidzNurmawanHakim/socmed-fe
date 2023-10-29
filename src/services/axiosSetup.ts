@@ -18,6 +18,7 @@ httpRequest.interceptors.request.use(
       return config;
    },
    (error: AxiosError) => {
+      console.log("🚀 ~ file: axiosSetup.ts:21 ~ error:", error);
       const originalRequest = error.config as MyAxiosRequestConfig;
       if (error.response?.status === 401 && !originalRequest._retry) {
          if (originalRequest) {
@@ -85,6 +86,7 @@ httpRequest.interceptors.response.use(
                if (!dataUser) {
                   return;
                }
+               console.log(originalRequest, "original");
 
                localStorage.setItem("token", res.data.access);
                axios.defaults.headers.common["Authorization"] = "Bearer " + res.data.access;

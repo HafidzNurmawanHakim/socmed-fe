@@ -45,9 +45,9 @@ code {
    box-sizing: border-box;
 }
 
-body {
+/* body {
    overflow-x: hidden !important;
-}
+} */
 
 .material-symbols-outlined {
    font-variation-settings: "FILL" 0, "wght" 400, "GRAD" 200, "opsz" 48 !important;

@@ -1,6 +1,4 @@
-"use client";
-
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MemoCoffee, MemoHome, MemoImage } from "../../../assets";
 import MemoPerson from "./Person";
 import { useAppController } from "../core/AppController";
@@ -11,6 +9,9 @@ import {
    SettingOutlined,
    UserOutlined,
 } from "@ant-design/icons";
+import { useAuth } from "../../auth/core/AuthProvider";
+import { getFollower } from "../../../services/user";
+import { UserData } from "../../auth/core/types";
 
 interface MenuProps {
    title: string;
@@ -19,6 +20,21 @@ interface MenuProps {
 
 export default function LeftPanel() {
    const { openPanel } = useAppController();
+   const { dataUser } = useAuth();
+   const [follower, setFollower] = useState<Array<UserData>>([]);
+   const [following, setFollowing] = useState<Array<UserData>>([]);
+
+   useEffect(() => {
+      getUserFollower();
+   }, []);
+
+   async function getUserFollower() {
+      const data = await getFollower();
+      if (data.status === 200) {
+         setFollower(data.data.data.follower);
+         setFollowing(data.data.data.following);
+      }
+   }
 
    const openModal = () => {
       const modal: any = document.getElementById("logout_modal");
@@ -29,7 +45,6 @@ export default function LeftPanel() {
    const logout = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-
       return window.location.reload();
    };
 
@@ -99,12 +114,18 @@ export default function LeftPanel() {
                      </div>
                      <div className="basis-1/2  p-2 pt-0">
                         <div className={`text-center ${openPanel ? "block" : "hidden"} `}>
-                           <div className="mb-0 text-white ">Hafidz hakim</div>
-                           <div className="text-xs space-y-0 mb-1 text-white">@hafidz_nh</div>
+                           <div className="mb-0 text-white ">
+                              {dataUser?.first_name.toUpperCase() +
+                                 " " +
+                                 dataUser?.last_name.toUpperCase()}
+                           </div>
+                           <div className="text-xs space-y-0 mb-1 text-white">
+                              @{dataUser?.username}
+                           </div>
                         </div>
                         <div className={`flex mt-3 ${openPanel ? "block" : "hidden"}`}>
                            <div className="basis-1/3 text-center text-white">
-                              <div>932k</div>
+                              <div>{follower.length}</div>
                               <div className="text-xs">Follower</div>
                            </div>
                            <div className="divider divider-horizontal "></div>
@@ -116,8 +137,8 @@ export default function LeftPanel() {
                            <div className="divider divider-horizontal "></div>
 
                            <div className="basis-1/3 text-center text-white">
-                              <div>932k</div>
-                              <div className="text-xs">Follower</div>
+                              <div>{following.length}</div>
+                              <div className="text-xs">Following</div>
                            </div>
                         </div>
                      </div>

@@ -95,6 +95,11 @@ const ContentCreator = () => {
       const formData = new FormData();
       formData.append("content", postData.content);
       formData.append("author", dataUser!.id.toString());
+      if (location) {
+         formData.append("location", JSON.stringify(location));
+         formData.append("latitude", location.latitude.toString());
+         formData.append("longitude", location.longitude.toString());
+      }
 
       try {
          setLoading(true);
@@ -175,12 +180,21 @@ const ContentCreator = () => {
       }
    };
 
+   const cancelHandle = () => {
+      setPreviewImages([]);
+      setImages([]);
+      setWithImage(false);
+      setCrop({ x: 0, y: 0 });
+      setCurrentSlide(0);
+      setCroppedImages([]);
+   };
+
    return (
       <div>
          <dialog id="create_content_modal" className="modal  ">
             <div className="modal-box max-w-[720px] h-[600px] p-0">
                <div className="h-12 flex items-center pl-6">
-                  <h3 className="font-normal text-dark dark:text-light text-lg">Hello!</h3>
+                  <h3 className="font-normal text-dark dark:text-light text-lg">Pilih Gambar</h3>
                </div>
                <div className="relative w-full h-4/5">
                   {previewImages.length > 0 ? (
@@ -231,8 +245,10 @@ const ContentCreator = () => {
                   <form method="dialog">
                      {/* if there is a button in form, it will close the modal */}
                      <button className="btn btn-sm">Simpan</button>
+                     <button className="btn btn-sm mx-2" onClick={cancelHandle}>
+                        Batal
+                     </button>
                   </form>
-                  <button className="btn btn-sm">Batal</button>
                </div>
             </div>
          </dialog>
