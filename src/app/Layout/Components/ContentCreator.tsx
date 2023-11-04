@@ -1,7 +1,7 @@
 import React, { ChangeEventHandler, useEffect, useState } from "react";
 import { MemoAt, MemoImage, MemoLoc } from "../../../assets";
 import Dropzone, { useDropzone } from "react-dropzone";
-import "react-image-gallery/styles/css/image-gallery.css";
+
 import {
    CaretLeftOutlined,
    CaretRightOutlined,

@@ -17,37 +17,7 @@ httpRequest.interceptors.request.use(
       }
       return config;
    },
-   (error: AxiosError) => {
-      console.log("🚀 ~ file: axiosSetup.ts:21 ~ error:", error);
-      const originalRequest = error.config as MyAxiosRequestConfig;
-      if (error.response?.status === 401 && !originalRequest._retry) {
-         if (originalRequest) {
-            originalRequest._retry = true;
-         }
-
-         const refreshToken = {
-            refresh: localStorage.getItem("refresh_token"),
-         };
-         return axios
-            .post(`${process.env.REACT_APP_BASE_URL}/user/refresh_token`, refreshToken)
-            .then((res) => {
-               let dataUser = localStorage.getItem("user");
-
-               if (!dataUser) {
-                  return;
-               }
-
-               localStorage.setItem("token", res.data.access);
-               axios.defaults.headers.common["Authorization"] = "Bearer " + res.data.access;
-               return axios(originalRequest);
-            })
-            .catch((err) => {
-               localStorage.removeItem("token");
-               localStorage.removeItem("user");
-            });
-      }
-      Promise.reject(error);
-   }
+  
 );
 
 httpRequest.interceptors.response.use(
@@ -86,10 +56,12 @@ httpRequest.interceptors.response.use(
                if (!dataUser) {
                   return;
                }
-               console.log(originalRequest, "original");
 
                localStorage.setItem("token", res.data.access);
-               axios.defaults.headers.common["Authorization"] = "Bearer " + res.data.access;
+               if (originalRequest.headers) {
+               originalRequest.headers['Authorization'] = "Bearer " + res.data.access;
+
+               }
                return axios(originalRequest);
             })
             .catch((err) => {
