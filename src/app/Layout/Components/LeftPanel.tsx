@@ -16,6 +16,7 @@ import { UserData } from "../../auth/core/types";
 interface MenuProps {
 	title: string;
 	icon: React.JSX.Element;
+	to: string;
 }
 
 export default function LeftPanel() {
@@ -91,6 +92,44 @@ export default function LeftPanel() {
 				</div>
 
 				<div
+					className={`rounded-lg w-[95%] custom-transition bg-top pl-[1px] bg-specialAva mx-auto overflow-hidden relative ${
+						openPanel ? "h-52" : "h-24"
+					}`}
+				>
+					<div className="w-full h-full backdrop-blur-md">
+						<div className="avatar block pt-3 mx-auto">
+							<div className="w-20 mask mask-squircle mx-auto">
+								<img src="/images/special.jpg" alt="Special Avatar" />
+							</div>
+						</div>
+
+						<h3 className="text-white text-center mt-2 text-sm">
+							{dataUser?.first_name.toUpperCase() + " " + dataUser?.last_name.toUpperCase()}
+						</h3>
+						<p className="text-white text-center text-xs">@{dataUser?.username}</p>
+
+						<div className={`flex mt-3 ${openPanel ? "block" : "hidden"}`}>
+							<div className="basis-1/3 text-center text-white">
+								<div>{follower.length}</div>
+								<div className="text-xs">Follower</div>
+							</div>
+							<div className="divider divider-horizontal "></div>
+
+							<div className="basis-1/3 text-center text-white">
+								<div>932k</div>
+								<div className="text-xs">Hits</div>
+							</div>
+							<div className="divider divider-horizontal "></div>
+
+							<div className="basis-1/3 text-center text-white">
+								<div>{following?.length}</div>
+								<div className="text-xs">Following</div>
+							</div>
+						</div>
+					</div>
+				</div>
+
+				{/* <div
 					className={`rounded-lg w-[95%] mx-auto overflow-hidden relative ${
 						openPanel ? "h-52" : "h-24"
 					}`}
@@ -142,7 +181,7 @@ export default function LeftPanel() {
 							</div>
 						</div>
 					</div>
-				</div>
+				</div> */}
 
 				<ul className="menu w-[85%]  ml-2 bg-white dark:bg-darker rounded-box mt-6">
 					<div className="ml-2 text-white">Menu</div>
@@ -152,6 +191,7 @@ export default function LeftPanel() {
 								<a
 									className={`custom-transition   ${openPanel ? "" : "tooltip"}`}
 									data-tip={item.title}
+									href={item.to === "/profile" ? `/profile/${dataUser?.id}` : item.to}
 								>
 									{item.icon}
 									<span
@@ -184,17 +224,21 @@ const menu: Array<MenuProps> = [
 	{
 		title: "Home",
 		icon: <HomeOutlined className="text-teal text-xl" />,
+		to: "#",
 	},
 	{
 		title: "Profile",
 		icon: <UserOutlined className="text-teal text-xl" />,
+		to: `/profile`,
 	},
 	{
 		title: "Images",
 		icon: <PictureOutlined className="text-teal text-xl" />,
+		to: "#",
 	},
 	{
 		title: "Setting",
 		icon: <SettingOutlined className="text-teal text-xl" />,
+		to: "#",
 	},
 ];
