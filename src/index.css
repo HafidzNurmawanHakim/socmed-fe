@@ -9,10 +9,31 @@ code {
 }
 
 .custom-transition {
-   transition: 0.3s !important;
+   transition: 0.3s ease-in-out !important;
 }
 
-.custom-card {
+@layer components {
+   .gradient {
+      -webkit-mask-image: -webkit-gradient(
+         linear,
+         top,
+         bottom,
+         from(rgba(0, 0, 0, 1)),
+         to(rgba(0, 0, 0, 0))
+      );
+      mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+   }
+
+   .gradient-to-right {
+      -webkit-mask-image: -webkit-gradient(
+         linear,
+         left,
+         right,
+         from(rgba(0, 0, 0, 1)),
+         to(rgba(0, 0, 0, 0))
+      );
+      mask-image: linear-gradient(to right, rgba(0, 0, 0, 1), rgba(0, 0, 0, 0));
+   }
 }
 
 .custom-card-glass::before {

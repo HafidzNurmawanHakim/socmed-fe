@@ -19,6 +19,17 @@ export type UserData = {
    username: string;
 };
 
+export type UserProfile = {
+   bio: string;
+   birthdate: string;
+   email: string;
+   first_name: string;
+   gender: string;
+   last_name: string;
+   profile_image: string;
+   username: string;
+};
+
 export type ErrorAuth = "errorLogin";
 
 export type ErrorAuthState = {

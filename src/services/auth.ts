@@ -8,3 +8,7 @@ export const loginUser = (data: UserLogin) => {
 export const signupUser = (data: UserRegis) => {
    return httpRequest.post("/user/signup", data);
 };
+
+export const getProfile = () => {
+   return httpRequest.get("user/get_profile");
+};

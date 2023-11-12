@@ -8,10 +8,12 @@ import {
    useState,
    useMemo,
 } from "react";
-import { ErrorAuth, ErrorAuthState, UserData, UserLogin, UserRegis } from "./types";
+import { ErrorAuth, ErrorAuthState, UserData, UserLogin, UserProfile, UserRegis } from "./types";
 import { useNavigate } from "react-router-dom";
-import { loginUser, signupUser } from "../../../services/auth";
+import { getProfile, loginUser, signupUser } from "../../../services/auth";
 import { toast } from "react-toastify";
+import httpRequest from "../../../services/axiosSetup";
+import { getFollower } from "../../../services/user";
 
 type AuthContextProps = {
    token: string | null;
@@ -19,6 +21,9 @@ type AuthContextProps = {
    login: (value: UserLogin) => void;
    signup: (value: UserRegis) => void;
    dataUser: UserData | null;
+   dataUserProfile: UserProfile | null;
+   follower: Array<UserData>;
+   following: Array<UserData>;
 };
 
 interface AuthProviderProps {
@@ -31,6 +36,9 @@ const initAuthContextProps = {
    login: async (user: UserLogin) => {},
    signup: async (user: UserRegis) => {},
    dataUser: null,
+   dataUserProfile: null,
+   follower: [],
+   following: [],
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextProps);
@@ -44,6 +52,29 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
 
    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
    const [dataUser, setDatauser] = useState<UserData | null>(initialUserData);
+   const [dataUserProfile, setDatauserProfile] = useState<UserProfile | null>(null);
+   const [follower, setFollower] = useState<Array<UserData>>([]);
+   const [following, setFollowing] = useState<Array<UserData>>([]);
+
+   useEffect(() => {
+      getUserFollower();
+   }, []);
+
+   async function getUserFollower() {
+      const data = await getFollower();
+      if (data.status === 200) {
+         setFollower(data.data.data.follower);
+         setFollowing(data.data.data.following);
+      }
+   }
+
+   const getUserProfile = async () => {
+      const res = await getProfile();
+
+      if (res?.status === 200) {
+         setDatauserProfile(res.data);
+      }
+   };
 
    async function signup(user: UserRegis) {
       try {
@@ -79,10 +110,17 @@ const AuthProvider = ({ children }: AuthProviderProps) => {
    }
 
    useEffect(() => {
-      if (!token || !dataUser) localStorage.removeItem("token");
+      if (!token || !dataUser) {
+         localStorage.removeItem("token");
+      }
+
+      getUserProfile();
    }, [token]);
 
-   const contextValue = useMemo(() => ({ token, dataUser, login, signup, setToken }), [token]);
+   const contextValue = useMemo(
+      () => ({ token, dataUser, login, signup, setToken, dataUserProfile, follower, following }),
+      [token, dataUser, login, signup, setToken, dataUserProfile, follower, following]
+   );
 
    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };
