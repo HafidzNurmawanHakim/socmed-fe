@@ -4,6 +4,7 @@ import Register from "../app/auth/components/Register";
 import { useAuth } from "../app/auth/core/AuthProvider";
 import Dashboard from "../pages/Dashboard";
 import Profile from "../pages/Profile";
+import ProfileForm from "../pages/ProfileForm";
 import { PrivateRoutes } from "./PrivateRoutes";
 import {
 	createBrowserRouter,
@@ -41,6 +42,10 @@ const Routes = () => {
 				{
 					path: "/profile/:id",
 					element: <Profile />,
+				},
+				{
+					path: "/profile/edit/:id",
+					element: <ProfileForm />,
 				},
 			],
 		},

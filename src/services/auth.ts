@@ -1,4 +1,5 @@
 import { UserLogin, UserRegis } from "../app/auth/core/types";
+import { FormUserProfile } from "../pages/ProfileForm";
 import httpRequest from "./axiosSetup";
 
 export const loginUser = (data: UserLogin) => {
@@ -11,4 +12,8 @@ export const signupUser = (data: UserRegis) => {
 
 export const getProfile = () => {
    return httpRequest.get("user/get_profile");
+}
+;
+export const updateProfile = (body: FormUserProfile) => {
+   return httpRequest.put("user/update", body);
 };

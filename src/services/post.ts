@@ -15,6 +15,9 @@ export const createPost = (data: FormData) => {
 export const getPost = (params?: number) => {
    return httpRequest.get(`/api/posts${!!params ? "?page=" + params : ""}`);
 };
+export const getUserPosts= (params?: number) => {
+   return httpRequest.get(`/api/posts/user_posts${!!params ? "?page=" + params : ""}`);
+};
 
 export const createComments = (comment: Comments, idPost: number) => {
    return httpRequest.post(`/api/comments/${idPost}`, comment);
