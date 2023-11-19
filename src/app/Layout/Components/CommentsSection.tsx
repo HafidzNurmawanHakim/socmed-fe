@@ -1,11 +1,13 @@
 import React, { Dispatch, FC, SetStateAction, useEffect, useState } from "react";
-import { UserData } from "../../auth/core/types";
+import { UserData, UserProfile } from "../../auth/core/types";
 import { InfiniteData, useInfiniteQuery } from "@tanstack/react-query";
 import { getComments } from "../../../services/post";
 import { generateTimestamps } from "../../helper/helper";
 import { ThunderboltFilled } from "@ant-design/icons";
 import MemoReply from "../../../assets/Svg/Reply";
 import { useAuth } from "../../auth/core/AuthProvider";
+
+const { REACT_APP_BASE_URL } = process.env;
 
 interface CommentsSectionProps {
    id_post: number;
@@ -16,7 +18,7 @@ interface CommentsSectionProps {
 }
 
 export type CommentPost = {
-   author_comment: UserData;
+   author: UserProfile;
    comment: string;
    created_at: string;
    user: number;
@@ -29,9 +31,7 @@ const CommentsSection: FC<CommentsSectionProps> = ({
    fetchNextPage,
    hasNextPage,
 }) => {
-   const { dataUser } = useAuth();
    const [commented, setCommented] = useState<boolean>(false);
-
    return (
       <div
          className="max-h-96 overflow-y-scroll bg-lessLight dark:bg-dark scrollbar rounded p-1"
@@ -40,6 +40,7 @@ const CommentsSection: FC<CommentsSectionProps> = ({
          {dataComments?.pages.map((items: CommentPost[], i) => {
             return items.length > 0 ? (
                items.map((item, j) => {
+                  console.log(item.author.profile_image);
                   return (
                      <div
                         key={i + j}
@@ -48,14 +49,20 @@ const CommentsSection: FC<CommentsSectionProps> = ({
                         <div className="flex justify-between">
                            <div className="w-16 mt-1">
                               <div className="chat-image avatar">
-                                 <div className="w-10 rounded-full">
-                                    <img src="https://api.multiavatar.com/Binx Bond.png" />
+                                 <div className="w-10 mask mask-squircle">
+                                    <img
+                                       src={
+                                          !!item.author.profile_image
+                                             ? `${REACT_APP_BASE_URL}/api${item.author?.profile_image}`
+                                             : `https://ui-avatars.com/api/?name=${item.author?.username}`
+                                       }
+                                    />
                                  </div>
                               </div>
                            </div>
                            <div className="w-[90%] ">
                               <div className="chat-header dark:text-white font-bold mb-1">
-                                 {item.author_comment?.username}
+                                 {item.author?.username}
                                  <time className="text-xs opacity-50 ml-1 font-light ml-2">
                                     {generateTimestamps(item.created_at)}
                                  </time>

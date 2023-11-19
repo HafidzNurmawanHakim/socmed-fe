@@ -1,4 +1,4 @@
-import React, { ChangeEventHandler, useEffect, useState } from "react";
+import React, { useState } from "react";
 import { MemoAt, MemoImage, MemoLoc } from "../../../assets";
 import Dropzone, { useDropzone } from "react-dropzone";
 
@@ -7,9 +7,6 @@ import {
    CaretRightOutlined,
    EnvironmentOutlined,
    PictureOutlined,
-   PlusOutlined,
-   SwapLeftOutlined,
-   SwapRightOutlined,
 } from "@ant-design/icons";
 import axios from "axios";
 import { useAuth } from "../../auth/core/AuthProvider";
@@ -18,6 +15,8 @@ import { createPost } from "../../../services/post";
 import { fetchBlobFromURL, getCroppedImg, openModal } from "../../helper/helper";
 import Cropper from "react-easy-crop";
 import { Point, Area } from "react-easy-crop/types";
+import { useSelector } from "react-redux";
+import { RootState } from "../../../redux/store";
 
 export interface ImagePreview {
    original: string;
@@ -38,8 +37,11 @@ type CroppedImagesProps = {
    image: string;
 };
 
+const { REACT_APP_BASE_URL } = process.env;
+
 const ContentCreator = () => {
    const { dataUser } = useAuth();
+   const userProfile = useSelector((state: RootState) => state.auth.dataProfile);
    const [previewImages, setPreviewImages] = useState<ImagePreview[]>([]);
    const [images, setImages] = useState<ImagePreview[]>([]);
    const [withImage, setWithImage] = useState<boolean>(false);
@@ -257,7 +259,11 @@ const ContentCreator = () => {
                <div className="flex w-full">
                   <div className="basis-16  mt-2 ml-2">
                      <img
-                        src="https://api.multiavatar.com/Binx Bond.png"
+                        src={
+                           !!userProfile.profile_image
+                              ? `${REACT_APP_BASE_URL}/api${userProfile?.profile_image}`
+                              : `https://ui-avatars.com/api/?name=${dataUser?.username}`
+                        }
                         alt="Background"
                         className="rounded-full mt-1 mx-auto w-10 h-10"
                      />

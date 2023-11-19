@@ -15,7 +15,7 @@ export const createPost = (data: FormData) => {
 export const getPost = (params?: number) => {
    return httpRequest.get(`/api/posts${!!params ? "?page=" + params : ""}`);
 };
-export const getUserPosts= (params?: number) => {
+export const getUserPosts = (params?: number) => {
    return httpRequest.get(`/api/posts/user_posts${!!params ? "?page=" + params : ""}`);
 };
 
@@ -27,8 +27,8 @@ export const getComments = (idPost: number, params?: number) => {
    return httpRequest.get(`/api/comments/${idPost}${!!params ? "?page=" + params : ""}`);
 };
 
-export const likePost = (data: LikePost) => {
-   return httpRequest.post(`/api/posts/like`, data);
+export const likePost = (post: number) => {
+   return httpRequest.post(`/api/posts/like/${post}`, {});
 };
 export const getLikePost = (post: number) => {
    return httpRequest.get(`/api/posts/like/${post}`);

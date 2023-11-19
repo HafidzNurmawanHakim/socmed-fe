@@ -10,7 +10,7 @@ import {
    ShareAltOutlined,
    ThunderboltFilled,
 } from "@ant-design/icons";
-import { UserData } from "../../auth/core/types";
+import { UserData, UserProfile } from "../../auth/core/types";
 import { formatTagsInText, generateTimestamps } from "../../helper/helper";
 import Carousel from "./Carousel";
 import {
@@ -25,6 +25,12 @@ import { useInfiniteQuery } from "@tanstack/react-query";
 import moment from "moment";
 import { useAuth } from "../../auth/core/AuthProvider";
 import CommentsSection, { CommentPost } from "./CommentsSection";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState, selectLikerByPostId } from "../../../redux/store";
+import { FetchLikePost } from "../../../redux/reducers/posts/PostsThunk";
+import { LikerPost } from "../../types/_postTypes";
+
+const { REACT_APP_BASE_URL } = process.env;
 
 export type ImageObj = {
    image: string;
@@ -34,7 +40,7 @@ type Content = {
    content: string;
    created_at: string;
    updated_at: string;
-   author: UserData;
+   author: UserProfile;
    id_post: number;
    images: Array<ImageObj>;
 };
@@ -43,40 +49,19 @@ interface ContentSectionProps {
    data: Content;
 }
 
-type LikePost = {
-   like_id: number;
-   created_at: string;
-   updated_at: string;
-   user: number;
-   post: number;
-};
-
 export const ContentSection = (props: ContentSectionProps) => {
    const { content, created_at, updated_at, author, id_post, images } = props.data;
    const { dataUser } = useAuth();
+   const dispatch = useDispatch<AppDispatch>();
    const [index, setIndex] = useState<number>(0);
    const [comment, setComment] = useState("");
    const [allComments, setAllComments] = useState([]);
    const [fetching, setFetching] = useState<boolean>(true);
    const [pageParams, setNextPageParams] = useState<number | undefined>(1);
    const [liked, setLiked] = useState<boolean>(false);
-   const [liker, setLiker] = useState<UserData[]>([]);
    const [commentsCount, setCommentsCount] = useState<number>(0);
-
-   const getLike = async () => {
-      const res = await getLikePost(id_post);
-
-      if (res.status === 200) {
-         // Check if the user has liked at least one item in res.data
-         const hasLiked = res.data.some((item: LikePost) => item.user === dataUser?.id);
-
-         setLiked(hasLiked); // Set liked state based on whether the user has liked at least one item
-
-         setLiker(res.data);
-      } else {
-         setLiker([]);
-      }
-   };
+   const liker = useSelector((state: RootState) => selectLikerByPostId(state, id_post));
+   const userProfile = useSelector((state: RootState) => state.auth.dataProfile);
 
    const {
       data: dataComments,
@@ -108,17 +93,23 @@ export const ContentSection = (props: ContentSectionProps) => {
       enabled: fetching,
       getNextPageParam(lastPage, page) {
          if (pageParams) return pageParams;
-
          return undefined;
       },
    });
 
    useEffect(() => {
-      getLike();
       if (dataComments) {
          setFetching(false);
       }
-   }, [dataComments]);
+
+      const fetchData = async () => {
+         await dispatch(FetchLikePost({ id_post }));
+         const hasLiked =
+            liker.length > 0 ? liker.some((item: LikerPost) => item.user === dataUser?.id) : false;
+         setLiked(hasLiked);
+      };
+      fetchData();
+   }, [dataComments, dispatch]);
 
    const newComments = async () => {
       if (comment.trim() === "") return;
@@ -154,17 +145,16 @@ export const ContentSection = (props: ContentSectionProps) => {
          } else {
             setLiked(true);
          }
-         return getLike();
+         return dispatch(FetchLikePost({ id_post }));
       } else {
-         const body = { post: id_post };
-         const res = await likePost(body);
+         const res = await likePost(id_post);
 
          if (res.status === 200) {
             setLiked(true);
          } else {
             setLiked(false);
          }
-         return getLike();
+         return dispatch(FetchLikePost({ id_post }));
       }
    };
 
@@ -173,9 +163,13 @@ export const ContentSection = (props: ContentSectionProps) => {
          <div id="creator-section" className=" flex ml-1 p-2">
             <div className="basis-10">
                <div className="avatar ">
-                  <div className="w-12 rounded">
+                  <div className="w-12 mask mask-squircle">
                      <img
-                        src="https://api.multiavatar.com/Binx Bond.png"
+                        src={
+                           !!author.profile_image
+                              ? `${REACT_APP_BASE_URL}/api${author?.profile_image}`
+                              : `https://ui-avatars.com/api/?name=${author?.username}`
+                        }
                         alt="Tailwind-CSS-Avatar-component"
                      />
                   </div>
@@ -283,9 +277,13 @@ export const ContentSection = (props: ContentSectionProps) => {
             <div className="comment-section bg-lessWhite  dark:bg-darker py-1 px-2 rounded-xl mt-2">
                <div className="comment flex space-x-4 items-start mt-2">
                   <div className="avatar">
-                     <div className="w-12 rounded ">
+                     <div className="w-12 mask mask-squircle">
                         <img
-                           src="https://api.multiavatar.com/Binx Bond.png"
+                           src={
+                              !!userProfile.profile_image
+                                 ? `${REACT_APP_BASE_URL}/api${userProfile?.profile_image}`
+                                 : `https://ui-avatars.com/api/?name=${dataUser?.username}`
+                           }
                            alt="Tailwind-CSS-Avatar-component"
                         />
                      </div>
@@ -315,7 +313,6 @@ export const ContentSection = (props: ContentSectionProps) => {
                      </div>
                   </div>
                </div>
-               {/* Tambahkan lebih banyak komentar di sini */}
             </div>
          </div>
       </div>
