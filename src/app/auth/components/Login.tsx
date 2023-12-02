@@ -12,6 +12,7 @@ import { Link } from "react-router-dom";
 import * as Yup from "yup";
 import { useAuth } from "../core/AuthProvider";
 import { UserLogin } from "../core/types";
+import { Tooltip } from "@nextui-org/react";
 
 const validationSchema = Yup.object().shape({
    username: Yup.string().required("Username is required!"),
@@ -38,16 +39,19 @@ const Login = () => {
    };
 
    return (
-      <div id="login" className={`h-screen w-screen custom-gradient-bg py-10 md:py-0`}>
+      <div id="login" className={`h-screen w-screen dark:bg-darker py-10 md:py-0`}>
          {/* <div className="bg-login bg-cover h-full w-full absolute top-0 left-0"></div> */}
-         <div className="md:flex rounded-full drop-shadow-xl w-3/4 m-auto md:pt-20">
-            <div className="basis-1/2 bg-dark z-10 rounded-xl bg-login md:bg-none md:bg-white bg-right md:rounded-s-xl  py-20 2xl:py-36  relative">
-               <div className="absolute top-6 left-6 2xl:top-10 2xl:left-10">
-                  <BugOutlined style={{ fontSize: "40px", color: "teal" }} />{" "}
-                  <span className="ml-2 text-lg text-darker">
-                     <span className="text-teal">Bug</span>
-                     <span className="text-white md:text-dark">You</span>
-                  </span>
+         <div className="absolute top-6 left-6 2xl:top-10 2xl:left-10">
+            <BugOutlined className="text-teal text-3xl" />{" "}
+            <span className="ml-2 text-lg pt-2 text-darker">
+               <span className="text-white dark:text-light md:text-dark">You</span>
+               <span className="text-teal">Bugs</span>
+            </span>
+         </div>
+         <div className="flex h-[90%] items-center justify-center">
+            <div className="rounded-md border-2 border-dark dark:bg-dark dark:text-light text-light">
+               <div className="w-full text-end">
+                  <BugOutlined className="text-teal mt-4 me-4 text-3xl" />
                </div>
                <Formik
                   initialValues={initialValues}
@@ -55,10 +59,10 @@ const Login = () => {
                   validationSchema={validationSchema}
                >
                   {({ isSubmitting, values }) => (
-                     <Form className="w-5/6 md:w-3/4 m-auto p-6 rounded-xl md:rounded-s-xl space-y-4">
-                        <h2 className="text-2xl md:text-black mb-4">Login</h2>
+                     <Form className="w-5/6 md:w-3/4 m-auto p-6 rounded-xl md:rounded-s-xl space-y-4 xs:px-2">
+                        <h2 className="text-2xl mb-4">Login</h2>
                         <div className="relative">
-                           <label htmlFor="username" className="font-normal text-black">
+                           <label htmlFor="username" className="font-normal text-sm ">
                               Username
                            </label>
                            <Field
@@ -66,14 +70,14 @@ const Login = () => {
                               id="username"
                               name="username"
                               placeholder="Username"
-                              className="input input-bordered text-black bg-white input-md w-full pr-10"
+                              className="input input-bordered input-sm text-dark h-10 rounded  w-full pr-10"
                            />
                            <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
                               <UserOutlined />
                            </span>
                         </div>
                         <div className="relative">
-                           <label htmlFor="password" className="font-normal text-black">
+                           <label htmlFor="password" className="font-normal text-sm ">
                               Password
                            </label>
                            <Field
@@ -81,7 +85,7 @@ const Login = () => {
                               id="password"
                               name="password"
                               placeholder="Password"
-                              className="input input-bordered text-black bg-white input-md w-full pr-10"
+                              className="input input-bordered input-sm text-dark h-10 rounded   w-full pr-10"
                            />
                            <div className="absolute flex items-center text-xl top-[45%]  right-3 transform-translate-y-1/2">
                               <div
@@ -105,19 +109,19 @@ const Login = () => {
                                  type="checkbox"
                                  id="remember"
                                  name="remember"
-                                 className="checkbox"
+                                 className="checkbox checkbox-sm"
                               />
-                              <label htmlFor="remember" className="ml-2 text-xs md:text-sm">
+                              <label htmlFor="remember" className="ml-2 text-xs xs:text-xxs">
                                  Remember me
                               </label>
                            </div>
-                           <div className="text-xs md:text-sm">
+                           <div className="text-xs xs:text-xxs">
                               <a href="#">Forgot password?</a>
                            </div>
                         </div>
                         <button
                            type="submit"
-                           className="btn bg-teal hover:bg-darkerTeal  border-none w-full"
+                           className="btn btn-sm h-10 rounded bg-teal hover:bg-darkerTeal  border-none w-full"
                            disabled={isSubmitting}
                         >
                            {isSubmitting ? (
@@ -128,20 +132,31 @@ const Login = () => {
                                  <span className=" loading loading-spinner spinner-dark"></span>
                               </>
                            ) : (
-                              <span className="normal-case text-white font-normal text-dark">
+                              <span className="normal-case dark:text-white font-normal text-dark">
                                  Login
                               </span>
                            )}
                         </button>
-                        <button type="button" className="btn btn-outline w-full">
-                           <GoogleOutlined />
-                           <span className="normal-case font-normal">Login with Google</span>
-                        </button>
+                        <Tooltip
+                           key={"bottom"}
+                           placement={"bottom"}
+                           content={"This feature is currently disabled!"}
+                           color="secondary"
+                        >
+                           <button
+                              type="button"
+                              className="btn btn-sm h-10 rounded dark:text-light text-dark btn-outline w-full disabled"
+                           >
+                              <GoogleOutlined />
+                              <span className="normal-case font-normal">Login with Google</span>
+                           </button>
+                        </Tooltip>
                      </Form>
                   )}
                </Formik>
-               <div className="w-full py-2 text-center absolute bottom-0 ">
-                  <span className="text-sm md:text-dark">
+
+               <div className="text-center py-6">
+                  <span className="text-sm xs:text-xxs dark:text-light text-dark">
                      Dont have account?{" "}
                      <a href="/register" className="text-teal">
                         {" "}
@@ -150,28 +165,19 @@ const Login = () => {
                   </span>
                </div>
             </div>
-            <div className="basis-1/2 bg-darker hidden md:block md:bg-login bg-right bg-cover rounded-e-xl py-20 pl-10 relative">
-               <div className="text-white">
-                  <h1 className="text-4xl">
-                     Welcome to <span className="text-teal">Bug</span>You
-                  </h1>
-               </div>
-               <div className="mt-10">
-                  <p>
-                     Lorem ipsum, dolor sit amet consectetur adipisicing elit. Dignissimos
-                     blanditiis voluptatem harum ducimus odio sequi eaque dolorem, fugiat omnis ea
-                     eius adipisci? Officia, harum ullam!
-                  </p>
-               </div>
-               <div className="text-xl absolute flex items-center right-10 bottom-10">
-                  <div className="pt-4 mr-4">
-                     <span className="text-teal">Bug</span>
-                     <span className="text-white">You</span>
-                  </div>
-                  <div className="text-teal text-4xl">
-                     <BugOutlined />
-                  </div>
-               </div>
+         </div>
+         <div className="dark:text-light text-xs items-center flex justify-center flex-col">
+            <div className="w-fit flex items-center">
+               <span className="text-sm ml-2 text-darker">
+                  <span className="text-white dark:text-light md:text-dark">You</span>
+                  <span className="text-teal">Bugs</span>
+               </span>
+               <BugOutlined className="text-teal mx-2 inline-block text-lg" />
+            </div>
+            <div className="mt-2">
+               <span className="cursor-pointer mx-1 hover:text-teal">User Agreement</span>
+               <span className="cursor-pointer mx-1 hover:text-teal">Privacy Policy</span>
+               <span className="cursor-pointer mx-1 hover:text-teal">Copyright Policy</span>
             </div>
          </div>
       </div>

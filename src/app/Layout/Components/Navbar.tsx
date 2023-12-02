@@ -1,4 +1,5 @@
-import { useNavigate } from "react-router";
+import { useNavigate, NavigateFunction } from "react-router";
+import { FC } from "react";
 import { MemoDarkMode, MemoLightMode, MemoMenu, MemoNotif, MemoSearch } from "../../../assets";
 import { useAppController } from "../core/AppController";
 import { useTheme } from "../core/ThemeProvider";
@@ -7,8 +8,113 @@ import { useAuth } from "../../auth/core/AuthProvider";
 import { getCurrentMediaQuery } from "../../helper/helper";
 import { useSelector } from "react-redux";
 import { RootState } from "../../../redux/store";
+import { Popover, PopoverContent, PopoverTrigger } from "@nextui-org/react";
+import { FormUserProfile } from "../../types/_authTypes";
+import { UserData } from "../../auth/core/types";
+import {
+   HomeOutlined,
+   LogoutOutlined,
+   PictureOutlined,
+   SettingOutlined,
+   UserOutlined,
+} from "@ant-design/icons";
 
 const { REACT_APP_BASE_URL } = process.env;
+
+interface ProfileCardProps {
+   navigate: NavigateFunction;
+   userProfile: FormUserProfile;
+   dataUser: UserData | null;
+   userFollower: UserData[];
+   userFollowing: UserData[];
+}
+
+const ProfileCard = (props: ProfileCardProps) => {
+   const openModal = () => {
+      const modal: any = document.getElementById("logout_modal");
+      if (!modal) return;
+      return modal.showModal();
+   };
+
+   return (
+      <PopoverContent>
+         <div>
+            <div className="w-full h-full backdrop-blur-[6px]">
+               <div className={`avatar block pt-4 mx-auto visible`}>
+                  <div
+                     className="w-20 mask mask-squircle mx-auto cursor-pointer"
+                     onClick={() => props.navigate(`profile/${props.dataUser?.id}`)}
+                  >
+                     <img
+                        src={`${REACT_APP_BASE_URL}/api${props.userProfile?.profile_image}`}
+                        alt="Special Avatar"
+                     />
+                  </div>
+               </div>
+
+               <h3 className="text-center mt-2 text-sm text-teal dark:text-light">
+                  {props.dataUser?.first_name.toUpperCase() +
+                     " " +
+                     props.dataUser?.last_name.toUpperCase()}
+               </h3>
+               <p className=" text-center text-xs text-teal dark:text-light">
+                  @{props.dataUser?.username}
+               </p>
+
+               <div className={`flex mt-3`}>
+                  <div className="basis-1/3 text-center text-teal dark:text-light">
+                     <div>{props.userFollower.length}</div>
+                     <div className="text-xs text-teal dark:text-light">Follower</div>
+                  </div>
+                  <div className="divider divider-horizontal "></div>
+
+                  <div className="basis-1/3 text-center text-teal dark:text-light">
+                     <div>932k</div>
+                     <div className="text-xs text-teal dark:text-light">Hits</div>
+                  </div>
+                  <div className="divider divider-horizontal "></div>
+
+                  <div className="basis-1/3 text-center text-teal dark:text-light">
+                     <div>{props.userFollowing?.length}</div>
+                     <div className="text-xs text-teal dark:text-light">Following</div>
+                  </div>
+               </div>
+
+               <p className="text-teal dark:text-light text-center text-xs mt-2 italic ">
+                  "{props.userProfile?.bio}"
+               </p>
+            </div>
+            <ul className="menu w-[85%]  bg-white dark:bg-darker rounded-box mt-6">
+               <div className="text-white">Menu</div>
+               {menu.map((item: MenuProps, i) => {
+                  return (
+                     <li key={i + item.title} className="custom-transition ">
+                        <a
+                           className={`custom-transition  `}
+                           data-tip={item.title}
+                           href={
+                              item.to === "/profile" ? `/profile/${props.dataUser?.id}` : item.to
+                           }
+                        >
+                           {item.icon}
+                           <span className={`custom-transition text-teal ml-4`}>{item.title}</span>
+                        </a>
+                     </li>
+                  );
+               })}
+            </ul>
+
+            <button
+               className={`btn custom-transition hover:text-teal hover:bg-lessLight dark:hover:bg-dark hover:border-darker bg-lessWhite dark:bg-dark border-none normal-case w-full btn-sm mb-4`}
+               onClick={openModal}
+            >
+               Logout
+               <LogoutOutlined className="text-teal custom-transition text-lg " />
+            </button>
+         </div>
+      </PopoverContent>
+   );
+};
 
 export function Navbar() {
    const { setOpenPanel, openPanel } = useAppController();
@@ -24,72 +130,37 @@ export function Navbar() {
       <div id="navbar" className="mr-2 mt-2 sticky top-0 z-10">
          <div className={`navbar bg-white dark:bg-darker rounded-xl `}>
             <div className="navbar-start">
-               <div className="dropdown dropdown-start">
-                  <label
-                     tabIndex={0}
-                     className="btn btn-ghost btn-circle"
-                     onClick={() =>
-                        currentMediaQuery === "sm" ||
-                        currentMediaQuery === "md" ||
-                        currentMediaQuery === "xl" ||
-                        currentMediaQuery === "lg"
-                           ? setOpenPanel(true)
-                           : setOpenPanel(!openPanel)
-                     }
-                  >
-                     <MemoMenu fontSize={26} strokeWidth={2} stroke="teal" />
-                  </label>
-                  <ul
-                     tabIndex={0}
-                     className="xl:hidden 2xl:hidden 3xl:hidden menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow-lg bg-darker rounded-md w-96"
-                  >
-                     <div>
-                        <div className="w-full h-full backdrop-blur-[6px]">
-                           <div className={`avatar block pt-4 mx-auto visible`}>
-                              <div
-                                 className="w-20 mask mask-squircle mx-auto cursor-pointer"
-                                 onClick={() => navigate(`profile/${dataUser?.id}`)}
-                              >
-                                 <img
-                                    src={`${REACT_APP_BASE_URL}/api${userProfile?.profile_image}`}
-                                    alt="Special Avatar"
-                                 />
-                              </div>
-                           </div>
-
-                           <h3 className="text-white text-center mt-2 text-sm">
-                              {dataUser?.first_name.toUpperCase() +
-                                 " " +
-                                 dataUser?.last_name.toUpperCase()}
-                           </h3>
-                           <p className="text-white text-center text-xs">@{dataUser?.username}</p>
-
-                           <div className={`flex mt-3 ${openPanel ? "block" : "hidden"}`}>
-                              <div className="basis-1/3 text-center text-white">
-                                 <div>{userFollower.length}</div>
-                                 <div className="text-xs">Follower</div>
-                              </div>
-                              <div className="divider divider-horizontal "></div>
-
-                              <div className="basis-1/3 text-center text-white">
-                                 <div>932k</div>
-                                 <div className="text-xs">Hits</div>
-                              </div>
-                              <div className="divider divider-horizontal "></div>
-
-                              <div className="basis-1/3 text-center text-white">
-                                 <div>{userFollowing?.length}</div>
-                                 <div className="text-xs">Following</div>
-                              </div>
-                           </div>
-
-                           <p className="text-white text-center text-xs mt-2 italic">
-                              "{userProfile?.bio}"
-                           </p>
-                        </div>
-                     </div>
-                  </ul>
-               </div>
+               <Popover placement={"bottom-start"}>
+                  <PopoverTrigger>
+                     <label
+                        tabIndex={0}
+                        className="btn btn-ghost btn-circle"
+                        onClick={() =>
+                           currentMediaQuery === "sm" ||
+                           currentMediaQuery === "md" ||
+                           currentMediaQuery === "xl" ||
+                           currentMediaQuery === "lg"
+                              ? null
+                              : setOpenPanel(!openPanel)
+                        }
+                     >
+                        <MemoMenu fontSize={26} strokeWidth={2} stroke="teal" />
+                     </label>
+                  </PopoverTrigger>
+                  {currentMediaQuery === "sm" ||
+                  currentMediaQuery === "md" ||
+                  currentMediaQuery === "xl" ? (
+                     <ProfileCard
+                        navigate={navigate}
+                        userFollower={userFollower}
+                        userProfile={userProfile}
+                        userFollowing={userFollowing}
+                        dataUser={dataUser}
+                     />
+                  ) : (
+                     <></>
+                  )}
+               </Popover>
             </div>
             <div className="navbar-center hidden lg:block">
                <div className="join">
@@ -121,3 +192,32 @@ export function Navbar() {
       </div>
    );
 }
+
+interface MenuProps {
+   title: string;
+   icon: React.JSX.Element;
+   to: string;
+}
+
+const menu: Array<MenuProps> = [
+   {
+      title: "Home",
+      icon: <HomeOutlined className="text-teal text-xl" />,
+      to: "/",
+   },
+   {
+      title: "Profile",
+      icon: <UserOutlined className="text-teal text-xl" />,
+      to: `/profile`,
+   },
+   {
+      title: "Images",
+      icon: <PictureOutlined className="text-teal text-xl" />,
+      to: "#",
+   },
+   {
+      title: "Setting",
+      icon: <SettingOutlined className="text-teal text-xl" />,
+      to: "#",
+   },
+];

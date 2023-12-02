@@ -14,8 +14,8 @@ interface CarouselProps {
 export default function Carousel({ images, index, setIndex }: CarouselProps) {
    return (
       <MotionConfig transition={{ duration: 0.7, ease: [0.32, 0.72, 0, 1] }}>
-         <div className="h-full bg-black">
-            <div className="mx-auto flex h-full max-w-7xl flex-col justify-center">
+         <div className="h-full">
+            <div className="mx-auto flex h-full max-w-7xl flex-col  justify-center">
                <div className="relative overflow-hidden">
                   <motion.div animate={{ x: `-${index * 100}%` }} className="flex">
                      {images.map((item, i) => {

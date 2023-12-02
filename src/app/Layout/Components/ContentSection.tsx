@@ -159,9 +159,12 @@ export const ContentSection = (props: ContentSectionProps) => {
    };
 
    return (
-      <div id="content-section" className="rounded-md p-2 mb-4 bg-white dark:bg-dark ">
-         <div id="creator-section" className=" flex ml-1 p-2">
-            <div className="basis-10">
+      <div
+         id="content-section"
+         className="rounded-md mb-4 bg-white dark:bg-dark  max-w-[800px] mx-auto"
+      >
+         <div id="creator-section" className="flex p-2">
+            <div className="basis-10 ">
                <div className="avatar ">
                   <div className="w-12 mask mask-squircle">
                      <img
@@ -184,7 +187,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                   <span className="text-xs text-teal ml-1">Jakarta</span>
                </div>
                <div className="dropdown dropdown-end absolute right-2 top-0">
-                  <label tabIndex={0} className="btn btn-ghost btn-circle">
+                  <label tabIndex={0} className="btn btn-ghost btn-sm btn-circle">
                      <MemoTripleDot
                         fontSize={28}
                         fill="teal"
@@ -204,11 +207,11 @@ export const ContentSection = (props: ContentSectionProps) => {
                </div>
             </div>
          </div>
-         <div id="content" className="px-2 ">
-            <div id="text-content" className="mb-2">
+         <div id="content" className="">
+            <div id="text-content" className="mb-2 ml-2">
                <p className="text-dark dark:text-light text-sm">{formatTagsInText(content)}</p>
             </div>
-            <div id="image-content" className=" ">
+            <div id="image-content" className="w-full">
                {images.length > 0 ? (
                   <Carousel images={images} index={index} setIndex={setIndex} />
                ) : (
@@ -230,7 +233,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                   })}
             </div>
 
-            <div id="content-hits" className="w-full flex my-2">
+            <div id="content-hits" className="w-full flex py-2 mx-2">
                <label className="btn btn-sm swap swap-rotate text-xl bg-white border-none text-[#666] hover:bg-lessLight dark:bg-dark dark:hover:bg-darker">
                   {/* this hidden checkbox controls the state */}
                   <input type="checkbox" checked={liked} onChange={handleLike} />
@@ -274,7 +277,7 @@ export const ContentSection = (props: ContentSectionProps) => {
                hasNextPage={hasNextPage}
             />
 
-            <div className="comment-section bg-lessWhite  dark:bg-darker py-1 px-2 rounded-xl mt-2">
+            <div className="comment-section bg-white  dark:bg-darker py-1 px-2 border-2 rounded dark:border-dark mt-2">
                <div className="comment flex space-x-4 items-start mt-2">
                   <div className="avatar">
                      <div className="w-12 mask mask-squircle">

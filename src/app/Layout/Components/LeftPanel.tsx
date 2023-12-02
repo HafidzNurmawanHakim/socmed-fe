@@ -56,16 +56,19 @@ export default function LeftPanel() {
       <>
          {/* Open the modal using document.getElementById('ID').showModal() method */}
          <dialog id="logout_modal" className="modal">
-            <div className="modal-box">
+            <div className="modal-box bg-white dark:bg-dark rounded-md">
                <p className="py-4 text-dark dark:text-light">Apakah Anda yakin ingin logout?</p>
                <div className="modal-action">
-                  <button className="btn btn-sm normal-case font-normal" onClick={logout}>
+                  <button
+                     className="btn btn-sm normal-case font-normal border-none rounded bg-lessLight dark:bg-darker text-teal hover:bg-teal hover:text-lessLight dark:hover:text-teal"
+                     onClick={logout}
+                  >
                      Logout
                   </button>
 
                   <form method="dialog">
                      {/* if there is a button in form, it will close the modal */}
-                     <button className="btn btn-sm normal-case font-normal bg-teal text-dark hover:text-light">
+                     <button className="btn btn-sm normal-case font-normal bg-teal text-lessLight hover:text-light border-none rounded hover:bg-lessLight hover:text-teal ">
                         Close
                      </button>
                   </form>

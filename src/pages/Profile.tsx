@@ -171,19 +171,21 @@ const Profile = () => {
                      <Card className="shadow-none dark:bg-darker rounded-md" shadow="none">
                         <InfiniteScroller hasMore={hasNextPage} loadMore={fetchNextPage}>
                            {!isLoading ? (
-                              data?.pages.map((items: Post[], i) => {
-                                 return items.length > 0 ? (
-                                    items.map((item: Post, i) => {
-                                       return <UserPostsCard key={item.id_post} item={item} />;
-                                    })
-                                 ) : (
-                                    <div className="text-light text-center pt-10" key={i}>
-                                       {dataUser?.id === parseInt(params.id || "")
-                                          ? "You have not posting anything yet"
-                                          : `${userProfile.first_name} have not posting anything yet`}
-                                    </div>
-                                 );
-                              })
+                              <div className="grid grid-cols-3 gap-1">
+                                 {data?.pages.map((items: Post[], i) => {
+                                    return items.length > 0 ? (
+                                       items.map((item: Post, i) => {
+                                          return <UserPostsCard key={item.id_post} item={item} />;
+                                       })
+                                    ) : (
+                                       <div className="text-light text-center pt-10" key={i}>
+                                          {dataUser?.id === parseInt(params.id || "")
+                                             ? "You have not posting anything yet"
+                                             : `${userProfile.first_name} have not posting anything yet`}
+                                       </div>
+                                    );
+                                 })}
+                              </div>
                            ) : (
                               <CardSkeleton />
                            )}

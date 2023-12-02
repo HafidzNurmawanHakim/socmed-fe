@@ -57,9 +57,9 @@ const Dashboard = () => {
 
    return (
       <div>
-         <div className="mt-2 mr-2 ">
+         <div className="mt-2 mr-2 xs:ml-2">
             <div className="bg-white dark:bg-darker rounded-md py-4 px-2 xl:px-20">
-               <div className="border bg-lessWhite dark:bg-darker border-none dark:border-darker 2xl:p-6 rounded-md shadow-md ">
+               <div className="border bg-lessWhite dark:bg-darker border-none dark:border-darker 2xl:p-6 rounded-md shadow-md max-w-[800px] mx-auto">
                   <ContentCreator />
                   {isLoading ? (
                      <div className="flex justify-center py-4">

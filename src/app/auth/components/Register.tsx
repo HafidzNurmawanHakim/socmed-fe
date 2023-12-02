@@ -6,17 +6,16 @@ import {
    LockOutlined,
    UserOutlined,
 } from "@ant-design/icons";
-import { ErrorMessage, Field, Form, Formik, FormikHelpers } from "formik";
+import { ErrorMessage, Field, FieldProps, Form, Formik, FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { UserRegis } from "../core/types";
 import { useAuth } from "../core/AuthProvider";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { Divider, Input, Tooltip } from "@nextui-org/react";
 
 const validationSchema = Yup.object().shape({
    username: Yup.string().required("Username is required!"),
-   first_name: Yup.string().required("First Name is required!"),
-   last_name: Yup.string().required("Last Name is required!"),
    email: Yup.string().email().required("email is required!"),
    password: Yup.string().required("Password is required!"),
    password2: Yup.string()
@@ -28,8 +27,6 @@ const initialValues: UserRegis = {
    username: "",
    password: "",
    password2: "",
-   first_name: "",
-   last_name: "",
    email: "",
 };
 
@@ -53,213 +50,198 @@ const Register = () => {
    };
 
    return (
-      <div className="dark:bg-darker bg-lessWhite w-screen h-screen text-dark dark:text-light relative">
-         <div className="absolute top-6 left-6 ">
-            <BugOutlined className="text-teal text-3xl mr-2" />
-            <span className="ml-2 text-lg ">
-               <span className="text-teal">Bug</span>
-               <span className="text-dark dark:text-light">You</span>
+      <div className="h-screen w-screen dark:bg-darker py-10 md:py-0">
+         <div className="absolute top-6 left-6 2xl:top-10 2xl:left-10 flex items-center">
+            <BugOutlined className="text-teal text-3xl" />{" "}
+            <span className="ml-2 text-lg pt-2 text-darker">
+               <span className="text-white dark:text-light md:text-dark">You</span>
+               <span className="text-teal">Bugs</span>
             </span>
          </div>
-         <div className="flex">
-            <div className="basis-1/2 h-screen px-20 py-28">
-               <div className=" bg-white dark:bg-darker h-4/5 p-10 px-20">
-                  <h3 className="text-2xl dark:text-white">Register</h3>
-                  <Formik
-                     initialValues={initialValues}
-                     onSubmit={handleSubmit}
-                     validationSchema={validationSchema}
-                  >
-                     {({ isSubmitting, values }) => (
-                        <Form className="">
-                           <div className="relative my-4">
-                              <label
-                                 htmlFor="username"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 Username
-                              </label>
-                              <Field
-                                 type="text"
-                                 id="username"
-                                 name="username"
-                                 placeholder="Username"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage
-                                 name="username"
-                                 component="div"
-                                 className="text-red-600"
-                              />
-                              <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
-                                 <UserOutlined />
-                              </span>
-                           </div>
-                           <div className="relative my-4">
-                              <label
-                                 htmlFor="first_name"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 First Name
-                              </label>
-                              <Field
-                                 type="text"
-                                 id="first_name"
-                                 name="first_name"
-                                 placeholder="First Name"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage
-                                 name="first_name"
-                                 component="div"
-                                 className="text-red-600"
-                              />
-                              <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
-                                 <UserOutlined />
-                              </span>
-                           </div>
-                           <div className="relative my-4">
-                              <label
-                                 htmlFor="last_name"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 Last Name
-                              </label>
-                              <Field
-                                 type="text"
-                                 id="last_name"
-                                 name="last_name"
-                                 placeholder="Last Name"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage
-                                 name="last_name"
-                                 component="div"
-                                 className="text-red-600"
-                              />
-                              <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
-                                 <UserOutlined />
-                              </span>
-                           </div>
-                           <div className="relative my-4">
-                              <label
-                                 htmlFor="email"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 Email
-                              </label>
-                              <Field
-                                 type="email"
-                                 id="email"
-                                 name="email"
-                                 placeholder="Email"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage name="email" component="div" className="text-red-600" />
-                              <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
-                                 <UserOutlined />
-                              </span>
-                           </div>
-                           <div className="relative my-4  ">
-                              <label
-                                 htmlFor="password"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 Password
-                              </label>
-                              <Field
-                                 type={seePass ? "text" : "password"}
-                                 id="password"
-                                 name="password"
-                                 placeholder="Password"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage
-                                 name="password"
-                                 component="div"
-                                 className="text-red-600"
-                              />
-                              <div className="absolute flex items-center text-xl top-[45%]  right-3 transform-translate-y-1/2">
-                                 <div
-                                    className={`pb-1 mr-2 ${
-                                       !!values.password ? "opacity-100" : "opacity-0"
-                                    }`}
-                                 >
-                                    {seePass ? (
-                                       <EyeInvisibleOutlined onClick={() => setSeePass(false)} />
-                                    ) : (
-                                       <EyeOutlined onClick={() => setSeePass(true)} />
-                                    )}
-                                 </div>
+         <div className="flex justify-center items-center p-6  h-[100%]">
+            <div className="xs:w-full 2xl:w-2/6 max-w-[600px] rounded bg-white dark:bg-dark p-4 relative">
+               <div className="w-full text-end absolute top-4 right-4">
+                  <BugOutlined className="text-teal text-3xl" />
+               </div>
 
-                                 <LockOutlined />
-                              </div>
-                           </div>
-                           <div className="relative my-4">
-                              <label
-                                 htmlFor="password2"
-                                 className="text-dark dark:text-light font-normal text-black"
-                              >
-                                 Password Confirm
-                              </label>
-                              <Field
-                                 type={seePass2 ? "text" : "password"}
-                                 id="password2"
-                                 name="password2"
-                                 placeholder="Password Confirm"
-                                 className="input input-bordered text-black bg-white input-md w-full pr-10"
-                              />
-                              <ErrorMessage
-                                 name="password2"
-                                 component="div"
-                                 className="text-red-600"
-                              />
-                              <div className="absolute flex items-center text-xl top-[35%]  right-3 transform-translate-y-1/2">
-                                 <div
-                                    className={`pb-1 mr-2 ${
-                                       !!values.password2 ? "opacity-100" : "opacity-0"
-                                    }`}
-                                 >
-                                    {seePass2 ? (
-                                       <EyeInvisibleOutlined onClick={() => setSeePass2(false)} />
-                                    ) : (
-                                       <EyeOutlined onClick={() => setSeePass2(true)} />
-                                    )}
-                                 </div>
+               <Formik
+                  initialValues={initialValues}
+                  onSubmit={handleSubmit}
+                  validationSchema={validationSchema}
+               >
+                  {({ isSubmitting, values }) => (
+                     <Form className="bg w-5/6 mx-auto mt-4">
+                        <h3 className="text-2xl dark:text-white">Register</h3>
 
-                                 <LockOutlined />
-                              </div>
-                           </div>
+                        <div className="relative my-4">
+                           <Field name="username">
+                              {({
+                                 field, // { name, value, onChange, onBlur }
+                                 form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                                 meta,
+                              }: FieldProps) => {
+                                 return (
+                                    <Input
+                                       size="sm"
+                                       type="text"
+                                       label="Userame"
+                                       placeholder="Userame"
+                                       labelPlacement="outside"
+                                       isInvalid={meta.touched && meta.error !== undefined}
+                                       errorMessage={meta.error}
+                                       classNames={{
+                                          input: ["text-teal dark:text-light"],
+                                          innerWrapper: ["bg-teal"],
+                                          inputWrapper: ["bg-lessLight dark:bg-dark rounded-sm"],
+                                       }}
+                                       {...field}
+                                    />
+                                 );
+                              }}
+                           </Field>
+                        </div>
 
-                           <button
-                              type="submit"
-                              className="btn bg-teal hover:bg-darkerTeal  border-none w-full"
-                              disabled={isSubmitting}
-                           >
-                              {isSubmitting ? (
-                                 <>
-                                    <span className="normal-case text-dark font-normal">
-                                       Loading...
-                                    </span>
-                                    <span className=" loading loading-spinner spinner-dark"></span>
-                                 </>
-                              ) : (
-                                 <span className="normal-case text-white font-normal text-dark">
-                                    Sign Up
+                        <div className="relative my-4">
+                           <Field name="email">
+                              {({
+                                 field, // { name, value, onChange, onBlur }
+                                 form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                                 meta,
+                              }: FieldProps) => {
+                                 return (
+                                    <Input
+                                       size="sm"
+                                       type="email"
+                                       label="Email"
+                                       placeholder="Email"
+                                       labelPlacement="outside"
+                                       isInvalid={meta.touched && meta.error !== undefined}
+                                       errorMessage={meta.error}
+                                       classNames={{
+                                          input: ["text-teal dark:text-light"],
+                                          innerWrapper: ["bg-teal"],
+                                          inputWrapper: ["bg-lessLight dark:bg-dark rounded-sm"],
+                                       }}
+                                       {...field}
+                                    />
+                                 );
+                              }}
+                           </Field>
+                        </div>
+                        <div className="relative my-4  ">
+                           <Field name="password">
+                              {({
+                                 field, // { name, value, onChange, onBlur }
+                                 form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                                 meta,
+                              }: FieldProps) => {
+                                 return (
+                                    <Input
+                                       size="sm"
+                                       type="password"
+                                       label="Password"
+                                       placeholder="Password"
+                                       labelPlacement="outside"
+                                       isInvalid={meta.touched && meta.error !== undefined}
+                                       errorMessage={meta.error}
+                                       endContent={<LockOutlined />}
+                                       classNames={{
+                                          input: ["text-teal dark:text-light"],
+                                          inputWrapper: ["bg-lessLight dark:bg-dark rounded-sm"],
+                                       }}
+                                       {...field}
+                                    />
+                                 );
+                              }}
+                           </Field>
+                        </div>
+                        <div className="relative my-4">
+                           <Field name="password2">
+                              {({
+                                 field, // { name, value, onChange, onBlur }
+                                 form: { touched, errors }, // also values, setXXXX, handleXXXX, dirty, isValid, status, etc.
+                                 meta,
+                              }: FieldProps) => {
+                                 return (
+                                    <Input
+                                       size="sm"
+                                       type="password"
+                                       label="Password Confirm"
+                                       placeholder="Password Confirm"
+                                       labelPlacement="outside"
+                                       isInvalid={meta.touched && meta.error !== undefined}
+                                       errorMessage={meta.error}
+                                       endContent={<LockOutlined />}
+                                       classNames={{
+                                          input: ["text-teal dark:text-light"],
+                                          inputWrapper: ["bg-lessLight dark:bg-dark rounded-sm"],
+                                       }}
+                                       {...field}
+                                    />
+                                 );
+                              }}
+                           </Field>
+                        </div>
+
+                        <button
+                           type="submit"
+                           className="btn btn-sm h-10 rounded my-1 bg-teal hover:bg-darkerTeal  border-none w-full"
+                           disabled={isSubmitting}
+                        >
+                           {isSubmitting ? (
+                              <>
+                                 <span className="normal-case text-dark font-normal text-sm">
+                                    Loading...
                                  </span>
-                              )}
-                           </button>
-                           <button type="button" className="btn btn-outline w-full">
+                                 <span className=" loading loading-spinner spinner-dark"></span>
+                              </>
+                           ) : (
+                              <span className="normal-case text-white font-normal text-sm text-dark">
+                                 Sign Up
+                              </span>
+                           )}
+                        </button>
+                        <div className="divider dark:text-light text-dark">OR</div>
+                        <Tooltip
+                           key={"bottom"}
+                           placement={"bottom"}
+                           content={"This feature is currently disabled!"}
+                           color="secondary"
+                        >
+                           <button
+                              type="button"
+                              className="btn btn-sm h-10 rounded dark:text-light text-dark btn-outline w-full disabled"
+                           >
                               <GoogleOutlined />
                               <span className="normal-case font-normal">Sign Up with Google</span>
                            </button>
-                        </Form>
-                     )}
-                  </Formik>
+                        </Tooltip>
+                     </Form>
+                  )}
+               </Formik>
+               <div className="text-center mt-6">
+                  <span className="text-sm dark:text-light text-dark">
+                     Already have account?
+                     <a href="/login" className="text-teal">
+                        {" "}
+                        Login
+                     </a>
+                  </span>
                </div>
             </div>
-            <div className="basis-1/2 flex items-center justify-center">
-               <button className="btn">Ini Gambar</button>
+         </div>
+         <div className="dark:text-light text-xs items-center flex justify-center flex-col absolute bottom-2 w-full">
+            <div className="w-fit flex items-center">
+               <span className="text-sm ml-2 text-darker">
+                  <span className="text-white dark:text-light md:text-dark">You</span>
+                  <span className="text-teal">Bugs</span>
+               </span>
+               <BugOutlined className="text-teal mx-2 inline-block text-lg" />
+            </div>
+            <div className="mt-2">
+               <span className="cursor-pointer mx-1 hover:text-teal">User Agreement</span>
+               <span className="cursor-pointer mx-1 hover:text-teal">Privacy Policy</span>
+               <span className="cursor-pointer mx-1 hover:text-teal">Copyright Policy</span>
             </div>
          </div>
       </div>

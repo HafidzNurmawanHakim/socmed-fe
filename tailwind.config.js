@@ -2,52 +2,55 @@ const { nextui } = require("@nextui-org/react");
 
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-	content: [
-		"./src/**/*.{js,jsx,ts,tsx}",
-		"./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
-	],
-	theme: {
-		extend: {
-			colors: {
-				teal: "#00ADB5",
-				darkerTeal: "#286372",
-				darker: "#16191b",
-				dark: "#1c1f22",
-				lessWhite: "#f5f5f5",
-				softRed: "#ED2B2A",
-				light: "#bbb",
-				lessLight: "#eee",
-				red: "#ED2B2A",
-			},
-			backgroundImage: {
-				login: "url('/public/images/dark-bg.jpg')",
-				specialAva: "url('/public/images/special.jpg')",
-			},
-			screens: {
-				xs: "360px",
-				"3xl": "1870px",
-			},
-		},
-	},
-	darkMode: "class",
-	plugins: [
-		require("daisyui"),
-		nextui({
-			themes: {
-				light: {
-					// ...
-					colors: {
-						default: "#00ADB5",
-					},
-				},
-				dark: {
-					// ...
-					colors: {
-						default: "#00ADB5",
-					},
-				},
-				// ... custom themes
-			},
-		}),
-	],
+   content: [
+      "./src/**/*.{js,jsx,ts,tsx}",
+      "./node_modules/@nextui-org/theme/dist/**/*.{js,ts,jsx,tsx}",
+   ],
+   theme: {
+      extend: {
+         colors: {
+            teal: "#00ADB5",
+            darkerTeal: "#286372",
+            darker: "#16191b",
+            dark: "#1c1f22",
+            lessWhite: "#f5f5f5",
+            softRed: "#ED2B2A",
+            light: "#bbb",
+            lessLight: "#eee",
+            red: "#ED2B2A",
+         },
+         backgroundImage: {
+            login: "url('/public/images/dark-bg.jpg')",
+            specialAva: "url('/public/images/special.jpg')",
+         },
+         screens: {
+            xs: "360px",
+            "3xl": "1870px",
+         },
+         fontSize: {
+            xxs: "10px",
+         },
+      },
+   },
+   darkMode: "class",
+   plugins: [
+      require("daisyui"),
+      nextui({
+         themes: {
+            light: {
+               // ...
+               colors: {
+                  default: "#00ADB5",
+               },
+            },
+            dark: {
+               // ...
+               colors: {
+                  default: "#00ADB5",
+               },
+            },
+            // ... custom themes
+         },
+      }),
+   ],
 };
