@@ -40,7 +40,6 @@ const CommentsSection: FC<CommentsSectionProps> = ({
          {dataComments?.pages.map((items: CommentPost[], i) => {
             return items.length > 0 ? (
                items.map((item, j) => {
-                  console.log(item.author.profile_image);
                   return (
                      <div
                         key={i + j}
