@@ -70,7 +70,7 @@ const Login = () => {
                               id="username"
                               name="username"
                               placeholder="Username"
-                              className="input input-bordered input-sm text-dark h-10 rounded  w-full pr-10"
+                              className="input input-bordered input-sm text-dark dark:text-light h-10 rounded  w-full pr-10"
                            />
                            <span className="absolute text-xl top-[40%] right-3 transform-translate-y-1/2 ">
                               <UserOutlined />
@@ -85,7 +85,7 @@ const Login = () => {
                               id="password"
                               name="password"
                               placeholder="Password"
-                              className="input input-bordered input-sm text-dark h-10 rounded   w-full pr-10"
+                              className="input input-bordered input-sm text-dark dark:text-light h-10 rounded   w-full pr-10"
                            />
                            <div className="absolute flex items-center text-xl top-[45%]  right-3 transform-translate-y-1/2">
                               <div
@@ -126,7 +126,7 @@ const Login = () => {
                         >
                            {isSubmitting ? (
                               <>
-                                 <span className="normal-case text-dark font-normal">
+                                 <span className="normal-case text-dark dark:text-light font-normal">
                                     Loading...
                                  </span>
                                  <span className=" loading loading-spinner spinner-dark"></span>

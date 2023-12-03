@@ -3,6 +3,7 @@ import { MemoCoffee, MemoHome, MemoImage } from "../../../assets";
 import MemoPerson from "./Person";
 import { useAppController } from "../core/AppController";
 import {
+   BugOutlined,
    HomeOutlined,
    LogoutOutlined,
    PictureOutlined,
@@ -49,7 +50,7 @@ export default function LeftPanel() {
    const logout = () => {
       localStorage.removeItem("token");
       localStorage.removeItem("user");
-      return window.location.reload();
+      return navigate(-2);
    };
 
    return (
@@ -86,13 +87,27 @@ export default function LeftPanel() {
                   : "basis-24"
             } `}
          >
-            <div className="h-16 pt-2 mb-2">
-               {/* <button className={`btn btn-ghost ${openPanel ? "ml-4" : "ml-1"}`}>
-                  <MemoCoffee fontSize={22} fill="#00ADB5" />
-                  <span className={`normal-case  ${openPanel ? "visible" : "invisible"}`}>
-                     Coffee
-                  </span>
-               </button> */}
+            <div className="h-16 pt-3 mb-2 relative">
+               <div
+                  className={`asbolute w-full h-full flex items-center trnasition-all duration-300 justify-center cursor-pointer`}
+                  onClick={() => navigate("/")}
+               >
+                  {openPanel ? (
+                     <>
+                        <BugOutlined className="text-teal text-3xl" />
+                        <span
+                           className={`text-lg pt-2 text-darker mx-2 trnasition-all duration-300 opacity-0 ${
+                              openPanel && "opacity-100"
+                           }`}
+                        >
+                           <span className="text-white dark:text-light md:text-dark">You</span>
+                           <span className="text-teal">Bugs</span>
+                        </span>
+                     </>
+                  ) : (
+                     <BugOutlined className="text-teal text-3xl" />
+                  )}
+               </div>
             </div>
 
             <div
