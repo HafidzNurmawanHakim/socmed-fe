@@ -1,4 +1,3 @@
-import axios, { AxiosResponse } from "axios";
 import {
    Dispatch,
    SetStateAction,
@@ -8,14 +7,16 @@ import {
    useState,
    useMemo,
 } from "react";
-import { ErrorAuth, ErrorAuthState, UserData, UserLogin } from "./types";
-import { useNavigate } from "react-router-dom";
+import { UserData, UserLogin, UserRegis } from "./types";
+import { loginUser, signupUser } from "../../../services/auth";
+import { toast } from "react-toastify";
 
 type AuthContextProps = {
    token: string | null;
    setToken: Dispatch<SetStateAction<string | null>>;
-   login: (value: UserLogin) => Promise<void | AxiosResponse<any, any>>;
-   dataUser: UserData | undefined;
+   login: (value: UserLogin) => void;
+   signup: (value: UserRegis) => void;
+   dataUser: UserData | null;
 };
 
 interface AuthProviderProps {
@@ -26,7 +27,8 @@ const initAuthContextProps = {
    token: null,
    setToken: () => {},
    login: async (user: UserLogin) => {},
-   dataUser: undefined,
+   signup: async (user: UserRegis) => {},
+   dataUser: null,
 };
 
 const AuthContext = createContext<AuthContextProps>(initAuthContextProps);
@@ -35,33 +37,61 @@ const useAuth = () => {
    return useContext(AuthContext);
 };
 const AuthProvider = ({ children }: AuthProviderProps) => {
+   const storedUserData = localStorage.getItem("user");
+   const initialUserData: UserData | null = storedUserData ? JSON.parse(storedUserData) : null;
+
    const [token, setToken] = useState<string | null>(localStorage.getItem("token"));
-   const [dataUser, setDatauser] = useState<UserData | undefined>(undefined);
+   const [dataUser, setDatauser] = useState<UserData | null>(initialUserData);
+
+   async function signup(user: UserRegis) {
+      try {
+         const resData = await signupUser(user);
+
+         if (resData.status === 201) {
+            toast.success("Sign Up successfully!", {
+               position: toast.POSITION.TOP_LEFT,
+               autoClose: 2000,
+            });
+            return { status: resData.status };
+         }
+      } catch (error) {
+         console.log("🚀 ~ file: AuthProvider.tsx:49 ~ Signup ~ error:", error);
+      }
+   }
 
    async function login(user: UserLogin) {
-      axios
-         .post("/user/login", user)
-         .then((res) => {
-            setToken(res.data.access_token);
-            setDatauser(res.data.data);
-            return res.status;
-         })
-         .catch((err) => {
-            return err.status;
-         });
+      try {
+         const resData = await loginUser(user);
+
+         if (resData.status === 200) {
+            setToken(resData.data.access_token);
+            localStorage.setItem("refresh_token", resData.data.refresh_token);
+            localStorage.setItem("token", resData.data.access_token);
+            localStorage.setItem("user", JSON.stringify(resData.data.data));
+            setDatauser(resData.data.data);
+            return resData.status;
+         }
+      } catch (err) {
+         console.log("🚀 ~ file: AuthProvider.tsx:56 ~ login ~ err:", err);
+      }
    }
 
    useEffect(() => {
-      if (token) {
-         axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-         localStorage.setItem("token", token);
-      } else {
-         delete axios.defaults.headers.common["Authorization"];
+      if (!token || !dataUser) {
          localStorage.removeItem("token");
       }
    }, [token]);
 
-   const contextValue = useMemo(() => ({ token, dataUser, login, setToken }), [token]);
+   const contextValue = useMemo(
+      () => ({
+         token,
+         dataUser,
+         login,
+         signup,
+         setToken,
+      }),
+      [token, dataUser, login, signup, setToken]
+   );
 
    return <AuthContext.Provider value={contextValue}>{children}</AuthContext.Provider>;
 };

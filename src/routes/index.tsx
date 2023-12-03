@@ -1,13 +1,15 @@
 import MasterLayout from "../app/Layout/core/MasterLayout";
 import Login from "../app/auth/components/Login";
+import Register from "../app/auth/components/Register";
 import { useAuth } from "../app/auth/core/AuthProvider";
+import Dashboard from "../pages/Dashboard";
+import Profile from "../pages/Profile";
+import ProfileForm from "../pages/ProfileForm";
 import { PrivateRoutes } from "./PrivateRoutes";
 import { createBrowserRouter, RouterProvider, Navigate } from "react-router-dom";
 
 const Routes = () => {
    const { token } = useAuth();
-
-   console.log(token, "token");
 
    const PublicRoutes = [
       {
@@ -23,15 +25,23 @@ const Routes = () => {
    const AuthenticatedRoutes = [
       {
          path: "/",
-         element: <PrivateRoutes />,
+         element: <MasterLayout />,
          children: [
             {
                path: "/",
-               element: <MasterLayout />,
+               element: <Dashboard />,
             },
             {
                path: "/login",
                element: <Navigate to="/" />,
+            },
+            {
+               path: "/profile/:id",
+               element: <Profile />,
+            },
+            {
+               path: "/profile/edit/:id",
+               element: <ProfileForm />,
             },
          ],
       },
@@ -40,11 +50,15 @@ const Routes = () => {
    const NotAuthenticatedRoutes = [
       {
          path: "/",
-         element: <div>Not Auth HomePage</div>,
+         element: <Navigate to={"/login"} />,
       },
       {
          path: "/login",
          element: <Login />,
+      },
+      {
+         path: "/register",
+         element: <Register />,
       },
    ];
 

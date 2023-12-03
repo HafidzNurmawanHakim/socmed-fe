@@ -1,40 +1,193 @@
-import React from "react";
+import React, { useState, useEffect } from "react";
 import { MemoLoc } from "../../../assets";
 import MemoTripleDot from "../../../assets/Svg/TripleDot";
 import MemoReply from "../../../assets/Svg/Reply";
-import MemoHeart from "../../../assets/Svg/Heart";
 import {
    HeartFilled,
+   HeartOutlined,
    MessageOutlined,
    SendOutlined,
    ShareAltOutlined,
    ThunderboltFilled,
 } from "@ant-design/icons";
+import { UserData, UserProfile } from "../../auth/core/types";
+import { formatTagsInText, generateTimestamps } from "../../helper/helper";
+import Carousel from "./Carousel";
+import {
+   createComments,
+   getComments,
+   getLikePost,
+   likePost,
+   unlikePost,
+} from "../../../services/post";
+import { toast } from "react-toastify";
+import { useInfiniteQuery } from "@tanstack/react-query";
+import moment from "moment";
+import { useAuth } from "../../auth/core/AuthProvider";
+import CommentsSection, { CommentPost } from "./CommentsSection";
+import { useDispatch, useSelector } from "react-redux";
+import { AppDispatch, RootState, selectLikerByPostId } from "../../../redux/store";
+import { FetchLikePost } from "../../../redux/reducers/posts/PostsThunk";
+import { LikerPost } from "../../types/_postTypes";
 
-export const ContentSection = () => {
+const { REACT_APP_BASE_URL } = process.env;
+
+export type ImageObj = {
+   image: string;
+};
+
+type Content = {
+   content: string;
+   created_at: string;
+   updated_at: string;
+   author: UserProfile;
+   id_post: number;
+   images: Array<ImageObj>;
+};
+
+interface ContentSectionProps {
+   data: Content;
+}
+
+export const ContentSection = (props: ContentSectionProps) => {
+   const { content, created_at, updated_at, author, id_post, images } = props.data;
+   const { dataUser } = useAuth();
+   const dispatch = useDispatch<AppDispatch>();
+   const [index, setIndex] = useState<number>(0);
+   const [comment, setComment] = useState("");
+   const [allComments, setAllComments] = useState([]);
+   const [fetching, setFetching] = useState<boolean>(true);
+   const [pageParams, setNextPageParams] = useState<number | undefined>(1);
+   const [liked, setLiked] = useState<boolean>(false);
+   const [commentsCount, setCommentsCount] = useState<number>(0);
+   const liker = useSelector((state: RootState) => selectLikerByPostId(state, id_post));
+   const userProfile = useSelector((state: RootState) => state.auth.dataProfile);
+
+   const {
+      data: dataComments,
+      error,
+      isLoading,
+      isFetching,
+      hasNextPage,
+      fetchNextPage,
+      fetchPreviousPage,
+      hasPreviousPage,
+      isFetchingNextPage,
+      isFetchingPreviousPage,
+      refetch: refetchComments,
+   } = useInfiniteQuery({
+      queryKey: [`dataCommentPost-${id_post}`],
+      queryFn: ({ pageParam = pageParams }) =>
+         getComments(id_post, pageParam).then((res) => {
+            setCommentsCount(res.data.count);
+            if (res.data.next) {
+               setNextPageParams((prev) => prev && prev + 1);
+            } else {
+               setNextPageParams(undefined);
+            }
+
+            // Set comment state based on whether the user has comment at least one item
+
+            return res.data.results;
+         }),
+      enabled: fetching,
+      getNextPageParam(lastPage, page) {
+         if (pageParams) return pageParams;
+         return undefined;
+      },
+   });
+
+   useEffect(() => {
+      if (dataComments) {
+         setFetching(false);
+      }
+
+      const fetchData = async () => {
+         await dispatch(FetchLikePost({ id_post }));
+         const hasLiked =
+            liker.length > 0 ? liker.some((item: LikerPost) => item.user === dataUser?.id) : false;
+         setLiked(hasLiked);
+      };
+      fetchData();
+   }, [dataComments, dispatch]);
+
+   const newComments = async () => {
+      if (comment.trim() === "") return;
+
+      const body = {
+         comment: comment,
+      };
+
+      const data = await createComments(body, id_post);
+
+      if (data.status === 201) {
+         setComment("");
+         toast.success("Post successfully!", {
+            position: "bottom-left",
+            autoClose: 1500,
+            theme: "dark",
+         });
+         return refetchComments();
+      }
+   };
+
+   const handleKeyDown = (e: any) => {
+      if (e.key === "Enter" && e.shiftKey === false) {
+         return newComments();
+      }
+   };
+
+   const handleLike = async () => {
+      if (liked) {
+         const res = await unlikePost(id_post);
+         if (res.status === 200) {
+            setLiked(false);
+         } else {
+            setLiked(true);
+         }
+         return dispatch(FetchLikePost({ id_post }));
+      } else {
+         const res = await likePost(id_post);
+
+         if (res.status === 200) {
+            setLiked(true);
+         } else {
+            setLiked(false);
+         }
+         return dispatch(FetchLikePost({ id_post }));
+      }
+   };
+
    return (
-      <div id="content-section" className="rounded-md pb-2 mb-4 bg-dark">
-         <div id="creator-section" className=" flex ml-1 p-2">
-            <div className="basis-10">
+      <div
+         id="content-section"
+         className="rounded-md mb-4 bg-white dark:bg-dark  max-w-[800px] mx-auto"
+      >
+         <div id="creator-section" className="flex p-2">
+            <div className="basis-10 ">
                <div className="avatar ">
-                  <div className="w-12 rounded bg-teal">
+                  <div className="w-12 mask mask-squircle">
                      <img
-                        src="https://api.multiavatar.com/Binx Bond.png"
+                        src={
+                           !!author.profile_image
+                              ? `${REACT_APP_BASE_URL}/api${author?.profile_image}`
+                              : `https://ui-avatars.com/api/?name=${author?.username}`
+                        }
                         alt="Tailwind-CSS-Avatar-component"
                      />
                   </div>
                </div>
             </div>
-            <div className="basis-auto bg-dark  pl-4 w-full relative">
-               <div id="creator-name" className="text-white">
-                  Hafidz Nh
+            <div className="basis-auto  pl-4 w-full relative">
+               <div id="creator-name" className="text-dark dark:text-white">
+                  {author.username}
                </div>
-               <div id="content-status" className="py-0 flex items-center text-sm mt-1  ">
+               <div id="content-status" className="py-0 flex items-center text-sm mt-1">
                   <MemoLoc fill="teal" stroke="teal" strokeWidth={8} className="text-lg" />
                   <span className="text-xs text-teal ml-1">Jakarta</span>
                </div>
                <div className="dropdown dropdown-end absolute right-2 top-0">
-                  <label tabIndex={0} className="btn btn-ghost btn-circle">
+                  <label tabIndex={0} className="btn btn-ghost btn-sm btn-circle">
                      <MemoTripleDot
                         fontSize={28}
                         fill="teal"
@@ -47,99 +200,122 @@ export const ContentSection = () => {
                      tabIndex={0}
                      className="menu menu-sm dropdown-content mt-3 z-[1] p-2 shadow bg-base-100 rounded-box w-52"
                   >
-                     <li>
+                     <li className="text-dark dark:text-light">
                         <a>Report this shit</a>
                      </li>
                   </ul>
                </div>
             </div>
          </div>
-         <div id="content" className="px-2">
-            <div id="text-content">
-               <p className="indent- text-sm">
-                  Lorem ipsum dolor sit amet consectetur adipisicing elit. Temporibus numquam quod,
-                  molestiae adipisci non nemo omnis libero? Quisquam, id. Rerum exercitationem
-                  quibusdam eum consequuntur enim debitis et eius voluptates vitae autem. Ullam
-                  laboriosam iure perferendis quo et dolore vel commodi molestiae at, ipsam non!
-                  Culpa.
-               </p>
-               <div id="tags-content">#test</div>
+         <div id="content" className="">
+            <div id="text-content" className="mb-2 ml-2">
+               <p className="text-dark dark:text-light text-sm">{formatTagsInText(content)}</p>
             </div>
-            <div id="image-content" className="flex">
-               <img
-                  src="https://random.imagecdn.app/500/400"
-                  className="rounded-md m-1"
-                  alt="random"
-               />
-               <div className="flex flex-col">
-                  <img
-                     src="https://random.imagecdn.app/300/200"
-                     className="rounded-md m-1"
-                     alt="random"
-                  />
-                  <img
-                     src="https://random.imagecdn.app/300/200"
-                     className="rounded-md m-1"
-                     alt="random"
-                  />
-               </div>
+            <div id="image-content" className="w-full">
+               {images.length > 0 ? (
+                  <Carousel images={images} index={index} setIndex={setIndex} />
+               ) : (
+                  <></>
+               )}
             </div>
 
-            <div className="divider my-0"></div>
+            <div className="flex mt-1 justify-center">
+               {images.length > 1 &&
+                  images.map((item, i) => {
+                     return (
+                        <span
+                           key={i}
+                           className={`w-2 mx-1 h-2 rounded-full ${
+                              i === index ? "bg-teal" : "bg-[#bbb] dark:bg-darker"
+                           }`}
+                        ></span>
+                     );
+                  })}
+            </div>
 
-            <div id="content-hits" className="w-full  flex mb-2">
-               <button tabIndex={0} className="btn btn-sm mx-1 ">
-                  <MemoHeart
-                     fontSize={28}
-                     fill="#ED2B2A"
-                     strokeWidth={2}
-                     className="material-symbols-outlined"
-                  />
-                  <span className="normal-case text-xs">289k</span>
-               </button>
-               <button tabIndex={0} className="btn btn-sm mx-1">
+            <div id="content-hits" className="w-full flex py-2 mx-2">
+               <label className="btn btn-sm swap swap-rotate text-xl bg-white border-none text-[#666] hover:bg-lessLight dark:bg-dark dark:hover:bg-darker">
+                  {/* this hidden checkbox controls the state */}
+                  <input type="checkbox" checked={liked} onChange={handleLike} />
+
+                  <div className="swap-on fill-current">
+                     <HeartFilled className=" text-red text-[22px] pb-2" />
+                     <span className="normal-case text-xs ml-2 ">
+                        {liker.length > 0 && liker.length}
+                     </span>
+                  </div>
+                  <div className="swap-off fill-current">
+                     <HeartOutlined className=" text-teal text-[22px] pb-2" />
+                     <span className="normal-case text-xs ml-2">
+                        {liker.length > 0 && liker.length}
+                     </span>
+                  </div>
+               </label>
+               <button
+                  tabIndex={0}
+                  className="btn bg-white border-none text-[#666] hover:bg-lessLight dark:bg-dark dark:hover:bg-darker btn-sm mx-1"
+               >
                   <MessageOutlined className="text-teal mb-1 text-xl" />
-                  <span className="normal-case text-xs">289k</span>
+                  <span className="normal-case text-xs mb-[4px]">
+                     {commentsCount > 0 && commentsCount}
+                  </span>
                </button>
-               <button tabIndex={0} className="btn btn-sm mx-1">
+               <button
+                  tabIndex={0}
+                  className="btn bg-white border-none text-[#666] hover:bg-lessLight dark:bg-dark dark:hover:bg-darker btn-sm mx-1"
+               >
                   <ShareAltOutlined className="text-teal mb-1 text-xl" />
-                  <span className="normal-case text-xs">289k</span>
+                  <span className="normal-case text-xs mb-[4px]">289k</span>
                </button>
             </div>
 
-            <div className="comment-section bg-darker py-1 px-2 rounded-xl">
-               <div className="comment flex space-x-4 items-start">
-                  <div className="avatar mt-1">
-                     <div className="w-10 rounded bg-teal">
+            <CommentsSection
+               id_post={id_post}
+               dataComments={dataComments}
+               commentsCount={commentsCount}
+               fetchNextPage={fetchNextPage}
+               hasNextPage={hasNextPage}
+            />
+
+            <div className="comment-section bg-white  dark:bg-darker py-1 px-2 border-2 rounded dark:border-dark mt-2">
+               <div className="comment flex space-x-4 items-start mt-2">
+                  <div className="avatar">
+                     <div className="w-12 mask mask-squircle">
                         <img
-                           src="https://api.multiavatar.com/Binx Bond.png"
+                           src={
+                              !!userProfile.profile_image
+                                 ? `${REACT_APP_BASE_URL}/api${userProfile?.profile_image}`
+                                 : `https://ui-avatars.com/api/?name=${dataUser?.username}`
+                           }
                            alt="Tailwind-CSS-Avatar-component"
                         />
                      </div>
                   </div>
-                  <div className="comment-content flex-1 pb-2">
-                     <p className="text-white">Sukirman</p>
-                     <div className="social-icons flex space-x-2 items-center justify-between">
+                  <div className="comment-content pb-2 w-full">
+                     <div className="social-icons flex space-x-2 items-center justify-between ">
                         {/* Ikon-ikon Media Sosial */}
-                        <p className="text-sm ">
-                           Lorem ipsum dolor sit amet consectetur adipisicing elit. Blanditiis in
-                        </p>
-                        <div className="flex">
+                        <textarea
+                           className={` textarea textarea-sm leading-normal dark:text-light w-full focus:outline-none bg-lessWhite dark:bg-dark h-full `}
+                           placeholder="Comment..."
+                           name="comment"
+                           value={comment}
+                           onChange={(e) => setComment(e.target.value)}
+                           onKeyDown={handleKeyDown}
+                        />
+                        <div className="self-start">
                            <a href="#" className="">
-                              <button tabIndex={0} className="btn btn-sm mx-1">
-                                 <ThunderboltFilled className="text-warning mb-1 text-xl" />
-                              </button>
-                           </a>
-                           <a href="#" className="">
-                              <button tabIndex={0} className="btn btn-sm mx-1">
-                                 <MemoReply fill="teal" className="text-teal mb-1 text-xl" />
+                              <button
+                                 tabIndex={0}
+                                 className="btn bg-lessLight dark:bg-dark border-none hover:bg-white mx-1"
+                                 onClick={() => newComments()}
+                              >
+                                 <SendOutlined className="text-teal mb-1 text-xl" />
                               </button>
                            </a>
                         </div>
                      </div>
                   </div>
                </div>
-               {/* Tambahkan lebih banyak komentar di sini */}
             </div>
          </div>
       </div>
